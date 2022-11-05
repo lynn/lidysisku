@@ -80,7 +80,11 @@ window.onload = () => {
         const full = new RegExp("\\b" + v + "e?s?\\b", "i");
         const subj = new RegExp("1\\}?\\$ (is (a |[$x2_{} ]+|[a-z/ ]+)?)?" + v);
         let lujvo_parts = [];
-        if (words.length === 1 && v.length > 5) {
+        if (words.length === 1) {
+          const selrafsi = search_selrafsi_from_rafsi2(v);
+          if (selrafsi) {
+            lujvoResult.innerHTML = "← " + selrafsi;
+          } else {
             try {
               const parts = jvokaha(v);
               lujvo_parts = parts.filter(x => x.length > 1).map(rafsi => search_selrafsi_from_rafsi2(rafsi) ?? `-${rafsi}-`);
@@ -90,6 +94,7 @@ window.onload = () => {
               lujvo_parts = [];
               lujvoResult.innerHTML = "";
             }
+          }
         } else if (words.length > 1) {
           try {
             const lujvo = jvozba(words).filter(x => /[aeiou]$/.test(x.lujvo));
