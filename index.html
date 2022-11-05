@@ -1,78 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
-<style>
-body {
-  color: #884162;
-  background-color: #e2ece1;
-  font-family: Georgia, 'Times New Roman', Times, serif;
-  overflow-y: scroll;
-  overflow-wrap: break-word;
-}
-dd {
-  margin-bottom: 10px;
-}
-dt, h1 {
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  font-weight: bold;
-}
-h1 {
-  text-align: center;
-  letter-spacing: -2;
-  background-color: #884162;
-  color: #e2ece1;
-}
-mark {
-  background-color: #884162;
-  color: #e2ece1;
-  padding: 0px 4px;
-}
-input {
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-}
-#lujvo_result {
-  font-style: italic;
-  height: 1.5em;
-  margin-top: 5px;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-}
-dt small {
-  font-size: inherit;
-  font-weight: normal;
-  font-style: italic;
-}
-</style>
-<script src="jvs-en.js"></script>
-<script src="sozysozbot_jvozba/docs/rafsi_list.js"></script>
-<script src="sozysozbot_jvozba/docs/scoring.js"></script>
-<script src="sozysozbot_jvozba/docs/tools.js"></script>
-<script src="sozysozbot_jvozba/docs/jvokaha.js"></script>
-<script src="sozysozbot_jvozba/docs/jvozba.js"></script>
-<div style="max-width:30em; margin:auto;">
-<h1><span>la lidysisku</span></h1>
-<label for='search'>
-  Search for:
-</label>
-<input id="exp_rafsi" type="checkbox" checked style="display: none;"></input>
-<input autofocus autocomplete="off" id="search" placeholder="try 'tcetace' or 'whale'"></input>
-<span id="lujvo_result"></span>
-<dl id="results"></dl>
-</div>
-<script>
-window.onload = () => {
-    const search = document.getElementById("search");
-    const lujvoResult = document.getElementById("lujvo_result");
-    const gismu = /^([bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou]|[bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][aeiou])$/;
-    let interval = undefined;
-    search.addEventListener("keyup", (e) => {
+  <head>
+    <title>la lidysisku</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="A fast, simple Lojban dictionary app" />
+    <meta name="author" content="la lalxu" />
+    <meta property="og:title" content="la lidysisku" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://foldr.moe/lidysisku/" />
+    <meta
+      property="og:description"
+      content="A fast, simple Lojban dictionary app."
+    />
+
+    <style>
+      body {
+        color: #884162;
+        background-color: #e2ece1;
+        font-family: Georgia, "Times New Roman", Times, serif;
+        overflow-y: scroll;
+        overflow-wrap: break-word;
+      }
+      dd {
+        margin-bottom: 10px;
+      }
+      dt,
+      h1 {
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        font-weight: bold;
+      }
+      h1 {
+        text-align: center;
+        letter-spacing: -2;
+        background-color: #884162;
+        color: #e2ece1;
+      }
+      mark {
+        background-color: #884162;
+        color: #e2ece1;
+        padding: 0px 4px;
+      }
+      input {
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+      }
+      #lujvo_result {
+        font-style: italic;
+        height: 1.5em;
+        margin-top: 5px;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+      }
+      dt small {
+        font-size: inherit;
+        font-weight: normal;
+        font-style: italic;
+      }
+    </style>
+    <script src="jvs-en.js"></script>
+    <script src="sozysozbot_jvozba/docs/rafsi_list.js"></script>
+    <script src="sozysozbot_jvozba/docs/scoring.js"></script>
+    <script src="sozysozbot_jvozba/docs/tools.js"></script>
+    <script src="sozysozbot_jvozba/docs/jvokaha.js"></script>
+    <script src="sozysozbot_jvozba/docs/jvozba.js"></script>
+  </head>
+  <div style="max-width: 30em; margin: auto">
+    <h1><span>la lidysisku</span></h1>
+    <label for="search"> Search for: </label>
+    <input id="exp_rafsi" type="checkbox" checked style="display: none" />
+    <input
+      autofocus
+      autocomplete="off"
+      id="search"
+      placeholder="try 'tcetace' or 'whale'"
+    />
+    <span id="lujvo_result"></span>
+    <dl id="results"></dl>
+  </div>
+  <script>
+    window.onload = () => {
+      const search = document.getElementById("search");
+      const lujvoResult = document.getElementById("lujvo_result");
+      const gismu =
+        /^([bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou]|[bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][aeiou])$/;
+      let interval = undefined;
+      search.addEventListener("keyup", (e) => {
         window.clearTimeout(interval);
         interval = window.setTimeout(go, 100);
-    });
-    function go() {
+      });
+      function go() {
         let v = search.value;
         lujvoResult.innerHTML = "";
         if (!(v = v.trim())) {
-            document.getElementById("results").replaceChildren();
-            return;
+          document.getElementById("results").replaceChildren();
+          return;
         }
         v = v.replace(/[^\s\w\d']/g, "").toLowerCase();
         const vh = v.replaceAll("h", "'");
@@ -88,7 +108,11 @@ window.onload = () => {
           } else {
             try {
               const parts = jvokaha(vh);
-              lujvo_parts = parts.filter(x => x.length > 1).map(rafsi => search_selrafsi_from_rafsi2(rafsi) ?? `-${rafsi}-`);
+              lujvo_parts = parts
+                .filter((x) => x.length > 1)
+                .map(
+                  (rafsi) => search_selrafsi_from_rafsi2(rafsi) ?? `-${rafsi}-`
+                );
               lujvoResult.innerHTML = "← " + lujvo_parts.join(" ");
             } catch (e) {
               console.log(e);
@@ -98,7 +122,7 @@ window.onload = () => {
           }
         } else if (words.length > 1) {
           try {
-            const lujvo = jvozba(words).filter(x => /[aeiou]$/.test(x.lujvo));
+            const lujvo = jvozba(words).filter((x) => /[aeiou]$/.test(x.lujvo));
             lujvoResult.innerHTML = "→ " + lujvo[0].lujvo;
           } catch (e) {
             console.log(e);
@@ -106,48 +130,63 @@ window.onload = () => {
           }
         }
         for (const e of jvs) {
-            const lemma = e[0];
-            const defn = e[1];
-            let score = 0;
-            const in0 = lemma.includes(v) || lemma.includes(vh);
-            const in1 = full.test(defn);
-            let i = -1, j = -1;
-            if ((i = words.indexOf(lemma)) > -1 || (j = lujvo_parts.indexOf(lemma)) > -1 || in0 || in1) {
-                if (i > -1) {
-                    score = 90000 - i;
-                } else if (j > -1) {
-                    score = 80000 - j;
-                } else {
-                    if (defn.length > 400) score -= 100;
-                    if (in0) score += 5;
-                    if (subj.test(defn)) score += 7;
-                    if (lemma === v || lemma === vh) score += 100;
-                    if (full.test(lemma)) score += 8;
-                    if (full.test(defn)) score += 8;
-                    if (gismu.test(lemma)) score += 5;
-                }
-                results.push([score, e]);
+          const lemma = e[0];
+          const defn = e[1];
+          let score = 0;
+          const in0 = lemma.includes(v) || lemma.includes(vh);
+          const in1 = full.test(defn);
+          let i = -1,
+            j = -1;
+          if (
+            (i = words.indexOf(lemma)) > -1 ||
+            (j = lujvo_parts.indexOf(lemma)) > -1 ||
+            in0 ||
+            in1
+          ) {
+            if (i > -1) {
+              score = 90000 - i;
+            } else if (j > -1) {
+              score = 80000 - j;
+            } else {
+              if (defn.length > 400) score -= 100;
+              if (in0) score += 5;
+              if (subj.test(defn)) score += 7;
+              if (lemma === v || lemma === vh) score += 100;
+              if (full.test(lemma)) score += 8;
+              if (full.test(defn)) score += 8;
+              if (gismu.test(lemma)) score += 5;
             }
+            results.push([score, e]);
+          }
         }
         results.sort((a, b) => b[0] - a[0]);
-        document.getElementById("results").replaceChildren(...results.slice(0, 50).flatMap((e) => {
+        document.getElementById("results").replaceChildren(
+          ...results.slice(0, 50).flatMap((e) => {
             const dt = document.createElement("dt");
             const lemma = e[1][0];
-            const rafsi = gismu_rafsi_list$(lemma) ?? cmavo_rafsi_list$(lemma) ?? [];
+            const rafsi =
+              gismu_rafsi_list$(lemma) ?? cmavo_rafsi_list$(lemma) ?? [];
             dt.appendChild(document.createTextNode(lemma));
             if (rafsi.length) {
               const small = document.createElement("small");
-              small.appendChild(document.createTextNode(" → " + rafsi.join(" ")));
+              small.appendChild(
+                document.createTextNode(" → " + rafsi.join(" "))
+              );
               dt.appendChild(small);
             }
             const dd = document.createElement("dd");
             dd.appendChild(document.createTextNode(e[1][1]));
             dd.innerHTML = dd.innerHTML
-                .replace(full, "<mark>$&</mark>")
-                .replace(/([\$=])(\w+)_\{?(\d+)\}?\$?/g, (_,v,w,d) => `${v === '=' ? '=' : ''}<i>${w}</i><sub>${d}</sub>`)
+              .replace(full, "<mark>$&</mark>")
+              .replace(
+                /([\$=])(\w+)_\{?(\d+)\}?\$?/g,
+                (_, v, w, d) =>
+                  `${v === "=" ? "=" : ""}<i>${w}</i><sub>${d}</sub>`
+              );
             return [dt, dd];
-        }))
-    }
-}
-</script>
+          })
+        );
+      }
+    };
+  </script>
 </html>
