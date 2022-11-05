@@ -75,18 +75,19 @@ window.onload = () => {
             return;
         }
         v = v.replace(/[^\s\w\d']/g, "").toLowerCase();
+        const vh = v.replaceAll("h", "'");
         const words = v.split(/\s+/);
         let results = [];
         const full = new RegExp("\\b" + v + "e?s?\\b", "i");
         const subj = new RegExp("1\\}?\\$ (is (a |[$x2_{} ]+|[a-z/ ]+)?)?" + v);
         let lujvo_parts = [];
         if (words.length === 1) {
-          const selrafsi = search_selrafsi_from_rafsi2(v);
+          const selrafsi = search_selrafsi_from_rafsi2(vh);
           if (selrafsi) {
             lujvoResult.innerHTML = "← " + selrafsi;
           } else {
             try {
-              const parts = jvokaha(v);
+              const parts = jvokaha(vh);
               lujvo_parts = parts.filter(x => x.length > 1).map(rafsi => search_selrafsi_from_rafsi2(rafsi) ?? `-${rafsi}-`);
               lujvoResult.innerHTML = "← " + lujvo_parts.join(" ");
             } catch (e) {
@@ -108,7 +109,7 @@ window.onload = () => {
             const lemma = e[0];
             const defn = e[1];
             let score = 0;
-            const in0 = lemma.includes(v);
+            const in0 = lemma.includes(v) || lemma.includes(vh);
             const in1 = full.test(defn);
             let i = -1, j = -1;
             if ((i = words.indexOf(lemma)) > -1 || (j = lujvo_parts.indexOf(lemma)) > -1 || in0 || in1) {
@@ -120,7 +121,7 @@ window.onload = () => {
                     if (defn.length > 400) score -= 100;
                     if (in0) score += 5;
                     if (subj.test(defn)) score += 7;
-                    if (lemma === v) score += 100;
+                    if (lemma === v || lemma === vh) score += 100;
                     if (full.test(lemma)) score += 8;
                     if (full.test(defn)) score += 8;
                     if (gismu.test(lemma)) score += 5;
