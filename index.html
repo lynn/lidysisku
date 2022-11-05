@@ -21,8 +21,6 @@ h1 {
   background-color: #884162;
   color: #e2ece1;
 }
-h1 span {
-}
 mark {
   background-color: #884162;
   color: #e2ece1;
@@ -31,19 +29,38 @@ mark {
 input {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
+#lujvo_result {
+  font-style: italic;
+  height: 1.5em;
+  margin-top: 5px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+dt small {
+  font-size: inherit;
+  font-weight: normal;
+  font-style: italic;
+}
 </style>
 <script src="jvs-en.js"></script>
+<script src="sozysozbot_jvozba/docs/rafsi_list.js"></script>
+<script src="sozysozbot_jvozba/docs/scoring.js"></script>
+<script src="sozysozbot_jvozba/docs/tools.js"></script>
+<script src="sozysozbot_jvozba/docs/jvokaha.js"></script>
+<script src="sozysozbot_jvozba/docs/jvozba.js"></script>
 <div style="max-width:30em; margin:auto;">
 <h1><span>la lidysisku</span></h1>
 <label for='search'>
   Search for:
 </label>
-<input autofocus id="search" placeholder="try 'tcetace' or 'whale'"></input>
+<input id="exp_rafsi" type="checkbox" checked style="display: none;"></input>
+<input autofocus autocomplete="off" id="search" placeholder="try 'tcetace' or 'whale'"></input>
+<span id="lujvo_result"></span>
 <dl id="results"></dl>
 </div>
 <script>
 window.onload = () => {
     const search = document.getElementById("search");
+    const lujvoResult = document.getElementById("lujvo_result");
     const gismu = /^([bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou]|[bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][aeiou])$/;
     let interval = undefined;
     search.addEventListener("keyup", (e) => {
@@ -52,6 +69,7 @@ window.onload = () => {
     });
     function go() {
         let v = search.value;
+        lujvoResult.innerHTML = "";
         if (!(v = v.trim())) {
             document.getElementById("results").replaceChildren();
             return;
@@ -61,16 +79,38 @@ window.onload = () => {
         let results = [];
         const full = new RegExp("\\b" + v + "e?s?\\b", "i");
         const subj = new RegExp("1\\}?\\$ (is (a |[$x2_{} ]+|[a-z/ ]+)?)?" + v);
+        let lujvo_parts = [];
+        if (words.length === 1 && v.length > 5) {
+            try {
+              const parts = jvokaha(v);
+              lujvo_parts = parts.filter(x => x.length > 1).map(rafsi => search_selrafsi_from_rafsi2(rafsi) ?? `-${rafsi}-`);
+              lujvoResult.innerHTML = "← " + lujvo_parts.join(" ");
+            } catch (e) {
+              console.log(e);
+              lujvo_parts = [];
+              lujvoResult.innerHTML = "";
+            }
+        } else if (words.length > 1) {
+          try {
+            const lujvo = jvozba(words).filter(x => /[aeiou]$/.test(x.lujvo));
+            lujvoResult.innerHTML = "→ " + lujvo[0].lujvo;
+          } catch (e) {
+            console.log(e);
+            lujvoResult.innerHTML = "";
+          }
+        }
         for (const e of jvs) {
             const lemma = e[0];
             const defn = e[1];
             let score = 0;
             const in0 = lemma.includes(v);
             const in1 = full.test(defn);
-            let i = -1;
-            if ((i = words.indexOf(lemma)) > -1 || in0 || in1) {
+            let i = -1, j = -1;
+            if ((i = words.indexOf(lemma)) > -1 || (j = lujvo_parts.indexOf(lemma)) > -1 || in0 || in1) {
                 if (i > -1) {
-                    score = 9999 - i;
+                    score = 90000 - i;
+                } else if (j > -1) {
+                    score = 80000 - j;
                 } else {
                     if (defn.length > 400) score -= 100;
                     if (in0) score += 5;
@@ -86,7 +126,14 @@ window.onload = () => {
         results.sort((a, b) => b[0] - a[0]);
         document.getElementById("results").replaceChildren(...results.slice(0, 50).flatMap((e) => {
             const dt = document.createElement("dt");
-            dt.appendChild(document.createTextNode(e[1][0]));
+            const lemma = e[1][0];
+            const rafsi = gismu_rafsi_list$(lemma) ?? cmavo_rafsi_list$(lemma) ?? [];
+            dt.appendChild(document.createTextNode(lemma));
+            if (rafsi.length) {
+              const small = document.createElement("small");
+              small.appendChild(document.createTextNode(" → " + rafsi.join(" ")));
+              dt.appendChild(small);
+            }
             const dd = document.createElement("dd");
             dd.appendChild(document.createTextNode(e[1][1]));
             dd.innerHTML = dd.innerHTML
