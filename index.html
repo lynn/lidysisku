@@ -74,7 +74,7 @@ window.onload = () => {
             document.getElementById("results").replaceChildren();
             return;
         }
-        v = v.replace(/[^\s\w\d']/g, "");
+        v = v.replace(/[^\s\w\d']/g, "").toLowerCase();
         const words = v.split(/\s+/);
         let results = [];
         const full = new RegExp("\\b" + v + "e?s?\\b", "i");
