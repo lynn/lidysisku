@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+body {
+  color: #884162;
+  background-color: #e2ece1;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  overflow-y: scroll;
+  overflow-wrap: break-word;
+}
+dd {
+  margin-bottom: 10px;
+}
+dt, h1 {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-weight: bold;
+}
+h1 {
+  text-align: center;
+  letter-spacing: -2;
+  background-color: #884162;
+  color: #e2ece1;
+}
+h1 span {
+}
+mark {
+  background-color: #884162;
+  color: #e2ece1;
+  padding: 0px 4px;
+}
+input {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+</style>
+<script src="jvs-en.js"></script>
+<div style="max-width:30em; margin:auto;">
+<h1><span>la lidysisku</span></h1>
+<label for='search'>
+  Search for:
+</label>
+<input autofocus id="search" placeholder="try 'tcetace' or 'whale'"></input>
+<dl id="results"></dl>
+</div>
+<script>
+window.onload = () => {
+    const search = document.getElementById("search");
+    const gismu = /^([bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou]|[bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][aeiou])$/;
+    let interval = undefined;
+    search.addEventListener("keyup", (e) => {
+        window.clearTimeout(interval);
+        interval = window.setTimeout(go, 100);
+    });
+    function go() {
+        let v = search.value;
+        if (!(v = v.trim())) {
+            document.getElementById("results").replaceChildren();
+            return;
+        }
+        v = v.replace(/[^\s\w\d']/g, "");
+        const words = v.split(/\s+/);
+        let results = [];
+        const full = new RegExp("\\b" + v + "e?s?\\b", "i");
+        const subj = new RegExp("1\\}?\\$ (is (a |[$x2_{} ]+|[a-z/ ]+)?)?" + v);
+        for (const e of jvs) {
+            const lemma = e[0];
+            const defn = e[1];
+            let score = 0;
+            const in0 = lemma.includes(v);
+            const in1 = full.test(defn);
+            let i = -1;
+            if ((i = words.indexOf(lemma)) > -1 || in0 || in1) {
+                if (i > -1) {
+                    score = 9999 - i;
+                } else {
+                    if (defn.length > 400) score -= 100;
+                    if (in0) score += 5;
+                    if (subj.test(defn)) score += 7;
+                    if (lemma === v) score += 100;
+                    if (full.test(lemma)) score += 8;
+                    if (full.test(defn)) score += 8;
+                    if (gismu.test(lemma)) score += 5;
+                }
+                results.push([score, e]);
+            }
+        }
+        results.sort((a, b) => b[0] - a[0]);
+        document.getElementById("results").replaceChildren(...results.slice(0, 50).flatMap((e) => {
+            const dt = document.createElement("dt");
+            dt.appendChild(document.createTextNode(e[1][0]));
+            const dd = document.createElement("dd");
+            dd.appendChild(document.createTextNode(e[1][1]));
+            dd.innerHTML = dd.innerHTML
+                .replace(full, "<mark>$&</mark>")
+                .replace(/([\$=])(\w+)_\{?(\d+)\}?\$?/g, (_,v,w,d) => `${v === '=' ? '=' : ''}<i>${w}</i><sub>${d}</sub>`)
+            return [dt, dd];
+        }))
+    }
+}
+</script>
+</html>
