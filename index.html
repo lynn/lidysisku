@@ -17,7 +17,6 @@
     <style>
       :root {
         font-size: 18px;
-
       }
       body {
         color: #884162;
@@ -255,7 +254,6 @@
       function setLang(newLang) {
         lang = ["en", "ja", "jbo"].includes(newLang) ? newLang : "en";
         localStorage.setItem("lang", lang);
-        search.value = "";
         search.placeholder = "loading...";
         search.disabled = true;
         fetch(`./jvs-${lang}.json`, {
@@ -264,11 +262,11 @@
           .then((res) => res.json())
           .then((data) => {
             jvs = data;
+            go();
             search.placeholder = "sisyvla";
             search.disabled = false;
             search.focus();
           });
-        go();
         for (const e of document.getElementsByClassName("lang")) {
           e.className =
             lang === e.attributes["data-lang"].value ? "lang active" : "lang";
@@ -279,6 +277,16 @@
         e.addEventListener("click", () => {
           setLang(e.attributes["data-lang"].value);
         });
+      }
+
+      if ("serviceWorker" in navigator) {
+        let registration;
+        const registerServiceWorker = async () => {
+          registration = await navigator.serviceWorker.register(
+            "./service-worker.js"
+          );
+        };
+        registerServiceWorker();
       }
     };
   </script>
