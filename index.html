@@ -60,7 +60,7 @@
       dt i {
         font-weight: normal;
       }
-      dt div {
+      dt a {
         display: inline-block;
         font-style: normal;
         border: 1px solid #884162;
@@ -70,6 +70,7 @@
         font-weight: normal;
         font-size: 12px;
         vertical-align: middle;
+        color: inherit;
       }
       button.lang {
         flex: 1;
@@ -137,6 +138,10 @@
         window.clearTimeout(interval);
         interval = window.setTimeout(go, 9);
       });
+      function doSearch(query) {
+        search.value = query;
+        go();
+      }
       function go() {
         let v = search.value;
         lujvoResult.innerHTML = "";
@@ -240,8 +245,9 @@
               dt.className = "obsolete";
             }
             if (typeof type === "string") {
-              // dt.appendChild(i);
-              const i = document.createElement("div");
+              const i = document.createElement("a");
+              i.href = "javascript:void(0)";
+              i.onclick = () => doSearch(type);
               i.appendChild(document.createTextNode(type));
               dt.appendChild(i);
             }
