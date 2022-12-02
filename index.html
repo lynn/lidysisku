@@ -144,6 +144,7 @@
           document.getElementById("results").replaceChildren();
           return;
         }
+        const vraw = v;
         v = v.replace(/[^\s\p{L}\d']/gu, "").toLowerCase();
         const vh = v.replaceAll("h", "'");
         const words = v.split(/\s+/);
@@ -189,13 +190,19 @@
           const in1 = full.test(defn);
           let i = -1,
             j = -1;
+          let selmahoMatch =
+            typeof type === "string" &&
+            (vraw === type || vraw === type.replaceAll(/[\d*]/g, ""));
           if (
+            selmahoMatch ||
             (i = words.indexOf(lemma)) > -1 ||
             (j = lujvo_parts.indexOf(lemma)) > -1 ||
             in0 ||
             in1
           ) {
-            if (i > -1) {
+            if (selmahoMatch) {
+              score = /\*/.test(type) ? 70000 : 71000;
+            } if (i > -1) {
               score = 90000 - i;
             } else if (j > -1) {
               score = 80000 - j;
