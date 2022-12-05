@@ -76,8 +76,7 @@
       dt a:hover {
         text-decoration: underline;
       }
-      button.lang {
-        flex: 1;
+      button {
         border: 1px solid #884162;
         border-radius: 4px;
         background-color: inherit;
@@ -85,6 +84,12 @@
         height: 24px;
         font-size: 14px;
         cursor: pointer;
+      }
+      button.lang {
+        flex: 1;
+      }
+      #search_history > button {
+        margin-right: 10px;
       }
       button.lang + button.lang {
         margin-left: 4px;
@@ -108,6 +113,9 @@
       <button class="lang" data-lang="ja">日本語</button>
       <button class="lang" data-lang="jbo">lojban</button>
     </div>
+    <div id="search_history" style="margin: 4px 0 12px">
+      Previous searches will show up here!
+    </div>
     <label for="search">🔎 </label>
     <input id="exp_rafsi" type="checkbox" checked style="display: none" />
     <input autocomplete="off" id="search" placeholder="loading..." disabled />
@@ -117,6 +125,7 @@
   <script>
     window.onload = () => {
       let lang = "en";
+      let searchHistory = []
       const search = document.getElementById("search");
       const lujvoResult = document.getElementById("lujvo_result");
       const wordTypes = [
@@ -140,11 +149,28 @@
       let interval = undefined;
       search.addEventListener("keyup", (e) => {
         window.clearTimeout(interval);
-        interval = window.setTimeout(go, 9);
+        interval = window.setTimeout(() => { appendHistory(search.value); go() }, 100);
       });
       function doSearch(query) {
         search.value = query;
         go();
+      }
+      function appendHistory(newSearchTerm) {
+        const searchHistoryDom = document.getElementById('search_history')
+        if (newSearchTerm.trim() !== "") {
+          searchHistory.unshift(newSearchTerm)
+          searchHistory = [...new Set(searchHistory)]  // get unique search history items
+          while (searchHistory.length > 10) {
+            searchHistory.pop()
+          }
+          searchHistoryDom.innerHTML = 'History: '
+          searchHistory.forEach((term) => {
+            const el = document.createElement("button")
+            el.innerText = term
+            el.onclick = () => { doSearch(term) }
+            searchHistoryDom.appendChild(el)
+          })
+        }
       }
       function go() {
         let v = search.value;
