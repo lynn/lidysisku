@@ -146,10 +146,13 @@
       ];
       const gismu =
         /^([bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou]|[bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][aeiou])$/;
-      let interval = undefined;
+      let searchInterval = undefined;
+      let historyInterval = undefined;
       search.addEventListener("keyup", (e) => {
-        window.clearTimeout(interval);
-        interval = window.setTimeout(() => { appendHistory(search.value); go() }, 100);
+        window.clearTimeout(searchInterval);
+        window.clearTimeout(historyInterval);
+        searchInterval = window.setTimeout(go, 9);
+        historyInterval = window.setTimeout(() => { appendHistory(search.value) }, 1000);
       });
       function doSearch(query) {
         search.value = query;
