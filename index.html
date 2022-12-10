@@ -142,6 +142,10 @@
         window.clearTimeout(interval);
         interval = window.setTimeout(go, 9);
       });
+      search.addEventListener("paste", (e) => {
+        window.clearTimeout(interval);
+        interval = window.setTimeout(go, 9);
+      });
       function doSearch(query) {
         search.value = query;
         go();
