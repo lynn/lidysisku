@@ -17,10 +17,13 @@
     <style>
       :root {
         font-size: 18px;
+        --critu: #884162;
+        --vensa: #e2ece1;
+        --sanserife: Verdana, Geneva, Tahoma, sans-serif;
       }
       body {
-        color: #884162;
-        background-color: #e2ece1;
+        color: var(--critu);
+        background-color: var(--vensa);
         font-family: Georgia, "Times New Roman", Times, serif;
         overflow-y: scroll;
         overflow-wrap: break-word;
@@ -30,28 +33,28 @@
       }
       dt,
       h1 {
-        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        font-family: var(--sanserife);
         font-weight: bold;
       }
       h1 {
         text-align: center;
         letter-spacing: -2;
-        background-color: #884162;
-        color: #e2ece1;
+        background-color: var(--critu);
+        color: var(--vensa);
         margin-bottom: 0;
       }
       mark {
-        background-color: #884162;
-        color: #e2ece1;
+        background-color: var(--critu);
+        color: var(--vensa);
         padding: 0rem 0.25rem;
       }
       input {
-        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        font-family: var(--sanserife);
       }
       #lujvo_result {
         font-style: italic;
         height: 1.5em;
-        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        font-family: var(--sanserife);
       }
       .obsolete {
         text-decoration: line-through;
@@ -63,7 +66,7 @@
       dt a {
         display: inline-block;
         font-style: normal;
-        border: 1px solid #884162;
+        border: 1px solid var(--critu);
         border-radius: 3px;
         margin-left: 0.5rem;
         padding: 1px 4px;
@@ -78,10 +81,10 @@
       }
       button.lang {
         flex: 1;
-        border: 1px solid #884162;
+        border: 1px solid var(--critu);
         border-radius: 4px;
         background-color: inherit;
-        color: #884162;
+        color: var(--critu);
         height: 24px;
         font-size: 14px;
         cursor: pointer;
@@ -90,8 +93,8 @@
         margin-left: 4px;
       }
       button.lang.active {
-        color: #e2ece1;
-        background-color: #884162;
+        color: var(--vensa);
+        background-color: var(--critu);
       }
     </style>
     <!-- <script src="jvs-en.js"></script> -->
@@ -101,19 +104,21 @@
     <script src="sozysozbot_jvozba/docs/jvokaha.js"></script>
     <script src="sozysozbot_jvozba/docs/jvozba.js"></script>
   </head>
-  <div style="max-width: 30em; margin: auto">
-    <h1><span>la lidysisku</span></h1>
-    <div style="display: flex; justify-content: center; margin: 4px 0 12px">
-      <button class="lang" data-lang="en">english</button>
-      <button class="lang" data-lang="ja">日本語</button>
-      <button class="lang" data-lang="jbo">lojban</button>
+  <body>
+    <div style="max-width: 30em; margin: auto">
+      <h1><span>la lidysisku</span></h1>
+      <div style="display: flex; justify-content: center; margin: 4px 0 12px">
+        <button class="lang" data-lang="en">english</button>
+        <button class="lang" data-lang="ja">日本語</button>
+        <button class="lang" data-lang="jbo">lojban</button>
+      </div>
+      <label for="search">🔎 </label>
+      <input id="exp_rafsi" type="checkbox" checked style="display: none" />
+      <input autocomplete="off" id="search" placeholder="loading..." disabled />
+      <span id="lujvo_result"></span>
+      <dl id="results"></dl>
     </div>
-    <label for="search">🔎 </label>
-    <input id="exp_rafsi" type="checkbox" checked style="display: none" />
-    <input autocomplete="off" id="search" placeholder="loading..." disabled />
-    <span id="lujvo_result"></span>
-    <dl id="results"></dl>
-  </div>
+  </body>
   <script>
     window.onload = () => {
       let lang = "en";
