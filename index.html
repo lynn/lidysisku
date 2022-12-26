@@ -145,21 +145,22 @@
       let interval = undefined;
       search.addEventListener("keyup", (e) => {
         window.clearTimeout(interval);
-        interval = window.setTimeout(go, 9);
+        interval = window.setTimeout(go, 15);
       });
       function doSearch(query) {
         search.value = query;
         go();
       }
       function go() {
-        let v = search.value;
+        const val = search.value.trim();
         lujvoResult.innerHTML = "";
-        if (!(v = v.trim())) {
+        if (!val) {
           document.getElementById("results").replaceChildren();
+          window.history.replaceState(null, null, "?" + lang);
           return;
         }
-        const vraw = v;
-        v = v.replace(/[^\s\p{L}\d']/gu, "").toLowerCase();
+        window.history.replaceState(null, null, "?" + lang + "#" + val);
+        const v = val.replace(/[^\s\p{L}\d']/gu, "").toLowerCase();
         const vh = v.replaceAll("h", "'");
         const words = v.split(/\s+/);
         let results = [];
@@ -206,7 +207,7 @@
             j = -1;
           let selmahoMatch =
             typeof type === "string" &&
-            (vraw === type || vraw === type.replaceAll(/[\d*]/g, ""));
+            (val === type || val === type.replaceAll(/[\d*]/g, ""));
           if (
             selmahoMatch ||
             (i = words.indexOf(lemma)) > -1 ||
@@ -216,7 +217,8 @@
           ) {
             if (selmahoMatch) {
               score = /\*/.test(type) ? 70000 : 71000;
-            } if (i > -1) {
+            }
+            if (i > -1) {
               score = 90000 - i;
             } else if (j > -1) {
               score = 80000 - j;
@@ -275,6 +277,7 @@
       }
       function setLang(newLang) {
         lang = ["en", "ja", "jbo"].includes(newLang) ? newLang : "en";
+        window.history.replaceState(null, null, "?" + lang);
         localStorage.setItem("lang", lang);
         search.placeholder = "loading...";
         search.disabled = true;
@@ -284,9 +287,12 @@
           .then((res) => res.json())
           .then((data) => {
             jvs = data;
-            go();
+            search.value = decodeURIComponent(
+              location.href.split("#")[1] || ""
+            );
             search.placeholder = "sisyvla";
             search.disabled = false;
+            go();
             search.focus();
           });
         for (const e of document.getElementsByClassName("lang")) {
@@ -294,7 +300,8 @@
             lang === e.attributes["data-lang"].value ? "lang active" : "lang";
         }
       }
-      setLang(localStorage.getItem("lang") ?? "en");
+      const fromParam = window.location.search.replace("?", "");
+      setLang(fromParam ? fromParam : localStorage.getItem("lang") ?? "en");
       for (const e of document.getElementsByClassName("lang")) {
         e.addEventListener("click", () => {
           setLang(e.attributes["data-lang"].value);
