@@ -8,7 +8,7 @@
     <meta name="author" content="la lalxu" />
     <meta property="og:title" content="la lidysisku" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://foldr.moe/lidysisku/" />
+    <meta property="og:url" content="https://sisku.org/" />
     <meta
       property="og:description"
       content="A fast, simple Lojban dictionary app."
@@ -19,12 +19,12 @@
         font-size: 18px;
         --critu: #884162;
         --vensa: #e2ece1;
-        --sanserife: Verdana, Geneva, Tahoma, sans-serif;
+        --sanserife: Verdana, Geneva, Tahoma, "DejaVu Sans", sans-serif;
       }
       body {
         color: var(--critu);
         background-color: var(--vensa);
-        font-family: Georgia, "Times New Roman", Times, serif;
+        font-family: Georgia, "Times New Roman", Times, "DejaVu Serif", serif;
         overflow-y: scroll;
         overflow-wrap: break-word;
       }
@@ -276,6 +276,10 @@
         );
       }
       function setLang(newLang) {
+        const query = (search.value = decodeURIComponent(
+          location.href.split("#")[1] || ""
+        ));
+
         lang = ["en", "ja", "jbo"].includes(newLang) ? newLang : "en";
         window.history.replaceState(null, null, "?" + lang);
         localStorage.setItem("lang", lang);
@@ -287,9 +291,7 @@
           .then((res) => res.json())
           .then((data) => {
             jvs = data;
-            search.value = decodeURIComponent(
-              location.href.split("#")[1] || ""
-            );
+            search.value = query;
             search.placeholder = "sisyvla";
             search.disabled = false;
             go();
