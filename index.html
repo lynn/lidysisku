@@ -8,7 +8,7 @@
     <meta name="author" content="la lalxu" />
     <meta property="og:title" content="la lidysisku" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://foldr.moe/lidysisku/" />
+    <meta property="og:url" content="https://sisku.org/" />
     <meta
       property="og:description"
       content="A fast, simple Lojban dictionary app."
@@ -17,11 +17,14 @@
     <style>
       :root {
         font-size: 18px;
+        --critu: #884162;
+        --vensa: #e2ece1;
+        --sanserife: Verdana, Geneva, Tahoma, "DejaVu Sans", sans-serif;
       }
       body {
-        color: #884162;
-        background-color: #e2ece1;
-        font-family: Georgia, "Times New Roman", Times, serif;
+        color: var(--critu);
+        background-color: var(--vensa);
+        font-family: Georgia, "Times New Roman", Times, "DejaVu Serif", serif;
         overflow-y: scroll;
         overflow-wrap: break-word;
       }
@@ -30,28 +33,28 @@
       }
       dt,
       h1 {
-        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        font-family: var(--sanserife);
         font-weight: bold;
       }
       h1 {
         text-align: center;
         letter-spacing: -2;
-        background-color: #884162;
-        color: #e2ece1;
+        background-color: var(--critu);
+        color: var(--vensa);
         margin-bottom: 0;
       }
       mark {
-        background-color: #884162;
-        color: #e2ece1;
+        background-color: var(--critu);
+        color: var(--vensa);
         padding: 0rem 0.25rem;
       }
       input {
-        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        font-family: var(--sanserife);
       }
       #lujvo_result {
         font-style: italic;
         height: 1.5em;
-        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        font-family: var(--sanserife);
       }
       .obsolete {
         text-decoration: line-through;
@@ -63,7 +66,7 @@
       dt a {
         display: inline-block;
         font-style: normal;
-        border: 1px solid #884162;
+        border: 1px solid var(--critu);
         border-radius: 3px;
         margin-left: 0.5rem;
         padding: 1px 4px;
@@ -78,10 +81,10 @@
       }
       button.lang {
         flex: 1;
-        border: 1px solid #884162;
+        border: 1px solid var(--critu);
         border-radius: 4px;
         background-color: inherit;
-        color: #884162;
+        color: var(--critu);
         height: 24px;
         font-size: 14px;
         cursor: pointer;
@@ -90,8 +93,8 @@
         margin-left: 4px;
       }
       button.lang.active {
-        color: #e2ece1;
-        background-color: #884162;
+        color: var(--vensa);
+        background-color: var(--critu);
       }
     </style>
     <!-- <script src="jvs-en.js"></script> -->
@@ -101,19 +104,21 @@
     <script src="sozysozbot_jvozba/docs/jvokaha.js"></script>
     <script src="sozysozbot_jvozba/docs/jvozba.js"></script>
   </head>
-  <div style="max-width: 30em; margin: auto">
-    <h1><span>la lidysisku</span></h1>
-    <div style="display: flex; justify-content: center; margin: 4px 0 12px">
-      <button class="lang" data-lang="en">english</button>
-      <button class="lang" data-lang="ja">日本語</button>
-      <button class="lang" data-lang="jbo">lojban</button>
+  <body>
+    <div style="max-width: 30em; margin: auto">
+      <h1><span>la lidysisku</span></h1>
+      <div style="display: flex; justify-content: center; margin: 4px 0 12px">
+        <button class="lang" data-lang="en">english</button>
+        <button class="lang" data-lang="ja">日本語</button>
+        <button class="lang" data-lang="jbo">lojban</button>
+      </div>
+      <label for="search">🔎 </label>
+      <input id="exp_rafsi" type="checkbox" checked style="display: none" />
+      <input autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" id="search" placeholder="loading..." disabled />
+      <span id="lujvo_result"></span>
+      <dl id="results"></dl>
     </div>
-    <label for="search">🔎 </label>
-    <input id="exp_rafsi" type="checkbox" checked style="display: none" />
-    <input autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" id="search" placeholder="loading..." disabled />
-    <span id="lujvo_result"></span>
-    <dl id="results"></dl>
-  </div>
+  </body>
   <script>
     window.onload = () => {
       let lang = "en";
@@ -140,21 +145,22 @@
       let interval = undefined;
       search.addEventListener("keyup", (e) => {
         window.clearTimeout(interval);
-        interval = window.setTimeout(go, 9);
+        interval = window.setTimeout(go, 15);
       });
       function doSearch(query) {
         search.value = query;
         go();
       }
       function go() {
-        let v = search.value;
+        const val = search.value.trim();
         lujvoResult.innerHTML = "";
-        if (!(v = v.trim())) {
+        if (!val) {
           document.getElementById("results").replaceChildren();
+          window.history.replaceState(null, null, "?" + lang);
           return;
         }
-        const vraw = v;
-        v = v.replace(/[^\s\p{L}\d']/gu, "").toLowerCase();
+        window.history.replaceState(null, null, "?" + lang + "#" + val);
+        const v = val.replace(/[^\s\p{L}\d']/gu, "").toLowerCase();
         const vh = v.replaceAll("h", "'");
         const words = v.split(/\s+/);
         let results = [];
@@ -201,7 +207,7 @@
             j = -1;
           let selmahoMatch =
             typeof type === "string" &&
-            (vraw === type || vraw === type.replaceAll(/[\d*]/g, ""));
+            (val === type || val === type.replaceAll(/[\d*]/g, ""));
           if (
             selmahoMatch ||
             (i = words.indexOf(lemma)) > -1 ||
@@ -211,7 +217,8 @@
           ) {
             if (selmahoMatch) {
               score = /\*/.test(type) ? 70000 : 71000;
-            } if (i > -1) {
+            }
+            if (i > -1) {
               score = 90000 - i;
             } else if (j > -1) {
               score = 80000 - j;
@@ -269,7 +276,12 @@
         );
       }
       function setLang(newLang) {
+        const query = (search.value = decodeURIComponent(
+          location.href.split("#")[1] || ""
+        ));
+
         lang = ["en", "ja", "jbo"].includes(newLang) ? newLang : "en";
+        window.history.replaceState(null, null, "?" + lang);
         localStorage.setItem("lang", lang);
         search.placeholder = "loading...";
         search.disabled = true;
@@ -279,9 +291,10 @@
           .then((res) => res.json())
           .then((data) => {
             jvs = data;
-            go();
+            search.value = query;
             search.placeholder = "sisyvla";
             search.disabled = false;
+            go();
             search.focus();
           });
         for (const e of document.getElementsByClassName("lang")) {
@@ -289,7 +302,8 @@
             lang === e.attributes["data-lang"].value ? "lang active" : "lang";
         }
       }
-      setLang(localStorage.getItem("lang") ?? "en");
+      const fromParam = window.location.search.replace("?", "");
+      setLang(fromParam ? fromParam : localStorage.getItem("lang") ?? "en");
       for (const e of document.getElementsByClassName("lang")) {
         e.addEventListener("click", () => {
           setLang(e.attributes["data-lang"].value);
