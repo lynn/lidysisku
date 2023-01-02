@@ -126,7 +126,10 @@ window.onload = () => {
         let extra =
           (type === 4 || type === 5 ? "*" : "") +
           (rafsi.length ? " → " + rafsi.join(" ") : "");
-        dt.appendChild(document.createTextNode(lemma));
+        const jvs = document.createElement("a");
+        jvs.href = "https://jbovlaste.lojban.org/dict/" + lemma;
+        jvs.appendChild(document.createTextNode(lemma));
+        dt.appendChild(jvs);
         if (extra) {
           const i = document.createElement("i");
           i.appendChild(document.createTextNode(extra));
@@ -137,6 +140,7 @@ window.onload = () => {
         }
         if (typeof type === "string") {
           const a = document.createElement("a");
+          a.className = "selmaho";
           a.href = "javascript:void(0)";
           a.onclick = () => doSearch(type);
           a.appendChild(document.createTextNode(type));
