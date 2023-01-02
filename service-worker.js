@@ -5,6 +5,7 @@ const cacheName = "lidysisku-cache";
 const filesToCache = [
   "/",
   "index.html",
+  "main.js",
   "sozysozbot_jvozba/docs/rafsi_list.js",
   "sozysozbot_jvozba/docs/scoring.js",
   "sozysozbot_jvozba/docs/tools.js",

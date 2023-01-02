@@ -13,7 +13,6 @@
       property="og:description"
       content="A fast, simple Lojban dictionary app."
     />
-
     <style>
       :root {
         font-size: 18px;
@@ -97,12 +96,12 @@
         background-color: var(--critu);
       }
     </style>
-    <!-- <script src="jvs-en.js"></script> -->
     <script src="sozysozbot_jvozba/docs/rafsi_list.js"></script>
     <script src="sozysozbot_jvozba/docs/scoring.js"></script>
     <script src="sozysozbot_jvozba/docs/tools.js"></script>
     <script src="sozysozbot_jvozba/docs/jvokaha.js"></script>
     <script src="sozysozbot_jvozba/docs/jvozba.js"></script>
+    <script src="main.js"></script>
   </head>
   <body>
     <div style="max-width: 30em; margin: auto">
@@ -119,206 +118,4 @@
       <dl id="results"></dl>
     </div>
   </body>
-  <script>
-    window.onload = () => {
-      let lang = "en";
-      const search = document.getElementById("search");
-      const lujvoResult = document.getElementById("lujvo_result");
-      const wordTypes = [
-        "bu-letteral",
-        "cmavo",
-        "cmavo-compound",
-        "cmevla",
-        "experimental cmavo",
-        "experimental gismu",
-        "fu'ivla",
-        "gismu",
-        "lujvo",
-        "obsolete cmavo",
-        "obsolete cmevla",
-        "obsolete fu'ivla",
-        "obsolete zei-lujvo",
-        "zei-lujvo",
-      ];
-      const gismu =
-        /^([bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou]|[bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][aeiou])$/;
-      let interval = undefined;
-      search.addEventListener("keyup", (e) => {
-        window.clearTimeout(interval);
-        interval = window.setTimeout(go, 15);
-      });
-      function doSearch(query) {
-        search.value = query;
-        go();
-      }
-      function go() {
-        const val = search.value.trim();
-        lujvoResult.innerHTML = "";
-        if (!val) {
-          document.getElementById("results").replaceChildren();
-          window.history.replaceState(null, null, "?" + lang);
-          return;
-        }
-        window.history.replaceState(null, null, "?" + lang + "#" + val);
-        const v = val.replace(/[^\s\p{L}\d']/gu, "").toLowerCase();
-        const vh = v.replaceAll("h", "'");
-        const words = v.split(/\s+/);
-        let results = [];
-        const full = new RegExp(
-          { ja: v, en: `\\b${v}e?s?\\b` }[lang] ?? `\\b${v}\\b`,
-          "ui"
-        );
-        const subj = new RegExp("1\\}?\\$ (is (a |[$x2_{} ]+|[a-z/ ]+)?)?" + v);
-        let lujvo_parts = [];
-        if (words.length === 1) {
-          const selrafsi = search_selrafsi_from_rafsi2(vh);
-          if (selrafsi) {
-            lujvoResult.innerHTML = "← " + selrafsi;
-          } else {
-            try {
-              const parts = jvokaha(vh);
-              lujvo_parts = parts
-                .filter((x) => x.length > 1)
-                .map(
-                  (rafsi) => search_selrafsi_from_rafsi2(rafsi) ?? `-${rafsi}-`
-                );
-              lujvoResult.innerHTML = "← " + lujvo_parts.join(" ");
-            } catch (e) {
-              // console.log(e);
-              lujvo_parts = [];
-              lujvoResult.innerHTML = "";
-            }
-          }
-        } else if (words.length > 1) {
-          try {
-            const lujvo = jvozba(words).filter((x) => /[aeiou]$/.test(x.lujvo));
-            lujvoResult.innerHTML = "→ " + lujvo[0].lujvo;
-          } catch (e) {
-            // console.log(e);
-            lujvoResult.innerHTML = "";
-          }
-        }
-        for (const e of jvs) {
-          const [lemma, type, defn] = e;
-          let score = 0;
-          const in0 = lemma.includes(v) || lemma.includes(vh);
-          const in1 = full.test(defn);
-          let i = -1,
-            j = -1;
-          let selmahoMatch =
-            typeof type === "string" &&
-            (val === type || val === type.replaceAll(/[\d*]/g, ""));
-          if (
-            selmahoMatch ||
-            (i = words.indexOf(lemma)) > -1 ||
-            (j = lujvo_parts.indexOf(lemma)) > -1 ||
-            in0 ||
-            in1
-          ) {
-            if (selmahoMatch) {
-              score = /\*/.test(type) ? 70000 : 71000;
-            }
-            if (i > -1) {
-              score = 90000 - i;
-            } else if (j > -1) {
-              score = 80000 - j;
-            } else {
-              if (defn.length > 400) score -= 100;
-              if (type >= 9 && type <= 12) score -= 100; // obsolete
-              if (in0) score += 5;
-              if (subj.test(defn)) score += 7;
-              if (lemma === v || lemma === vh) score += 100;
-              if (full.test(lemma)) score += 8;
-              if (full.test(defn)) score += 8;
-              if (gismu.test(lemma)) score += type === 5 ? 1 : 5;
-            }
-            results.push([score, e]);
-          }
-        }
-        results.sort((a, b) => b[0] - a[0]);
-        document.getElementById("results").replaceChildren(
-          ...results.slice(0, 50).flatMap((e) => {
-            const dt = document.createElement("dt");
-            const [lemma, type, defn] = e[1];
-            const rafsi =
-              gismu_rafsi_list$(lemma) ?? cmavo_rafsi_list$(lemma) ?? [];
-            const obsolete = type >= 9 && type <= 12;
-            let extra =
-              (type === 4 || type === 5 ? "*" : "") +
-              (rafsi.length ? " → " + rafsi.join(" ") : "");
-            dt.appendChild(document.createTextNode(lemma));
-            if (extra) {
-              const i = document.createElement("i");
-              i.appendChild(document.createTextNode(extra));
-              dt.appendChild(i);
-            }
-            if (obsolete) {
-              dt.className = "obsolete";
-            }
-            if (typeof type === "string") {
-              const i = document.createElement("a");
-              i.href = "javascript:void(0)";
-              i.onclick = () => doSearch(type);
-              i.appendChild(document.createTextNode(type));
-              dt.appendChild(i);
-            }
-            const dd = document.createElement("dd");
-            dd.appendChild(document.createTextNode(defn));
-            dd.innerHTML = dd.innerHTML
-              .replace(full, "<mark>$&</mark>")
-              .replace(
-                /([\$=])(\w+)_\{?(\d+)\}?\$?/g,
-                (_, v, w, d) =>
-                  `${v === "=" ? "=" : ""}<i>${w}</i><sub>${d}</sub>`
-              );
-            return [dt, dd];
-          })
-        );
-      }
-      function setLang(newLang) {
-        const query = (search.value = decodeURIComponent(
-          location.href.split("#")[1] || ""
-        ));
-
-        lang = ["en", "ja", "jbo"].includes(newLang) ? newLang : "en";
-        window.history.replaceState(null, null, "?" + lang);
-        localStorage.setItem("lang", lang);
-        search.placeholder = "loading...";
-        search.disabled = true;
-        fetch(`./jvs-${lang}.json`, {
-          headers: { accept: "application/json; charset=utf8;" },
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            jvs = data;
-            search.value = query;
-            search.placeholder = "sisyvla";
-            search.disabled = false;
-            go();
-            search.focus();
-          });
-        for (const e of document.getElementsByClassName("lang")) {
-          e.className =
-            lang === e.attributes["data-lang"].value ? "lang active" : "lang";
-        }
-      }
-      const fromParam = window.location.search.replace("?", "");
-      setLang(fromParam ? fromParam : localStorage.getItem("lang") ?? "en");
-      for (const e of document.getElementsByClassName("lang")) {
-        e.addEventListener("click", () => {
-          setLang(e.attributes["data-lang"].value);
-        });
-      }
-
-      if ("serviceWorker" in navigator) {
-        let registration;
-        const registerServiceWorker = async () => {
-          registration = await navigator.serviceWorker.register(
-            "./service-worker.js"
-          );
-        };
-        registerServiceWorker();
-      }
-    };
-  </script>
 </html>
