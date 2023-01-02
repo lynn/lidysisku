@@ -64,7 +64,6 @@ window.onload = () => {
             .map((rafsi) => search_selrafsi_from_rafsi2(rafsi) ?? `-${rafsi}-`);
           lujvoResult.innerHTML = "← " + lujvoParts.join(" ");
         } catch (e) {
-          // console.log(e);
           lujvoParts = [];
           lujvoResult.innerHTML = "";
         }
@@ -74,31 +73,29 @@ window.onload = () => {
         const lujvo = jvozba(words).filter((x) => /[aeiou]$/.test(x.lujvo));
         lujvoResult.innerHTML = "→ " + lujvo[0].lujvo;
       } catch (e) {
-        // console.log(e);
         lujvoResult.innerHTML = "";
       }
     }
+    const isSelmahoQuery = /^[A-Zh0-9*]+$/.test(trimmed);
     for (const e of jvs) {
       const [lemma, type, definition] = e;
       let score = 0;
       const inLemma = lemma.includes(natural) || lemma.includes(apostrophized);
       const inDefinition = full.test(definition);
-      let i = -1,
-        j = -1;
-      let selmahoMatch =
-        typeof type === "string" &&
-        (trimmed === type || trimmed === type.replaceAll(/[\d*]/g, ""));
+      let i = -1;
+      let j = -1;
       if (
-        selmahoMatch ||
-        (i = words.indexOf(lemma)) > -1 ||
-        (j = lujvoParts.indexOf(lemma)) > -1 ||
-        inLemma ||
-        inDefinition
+        isSelmahoQuery
+          ? typeof type === "string" &&
+            (trimmed === type || trimmed === type.replaceAll(/[\d*]/g, ""))
+          : (i = words.indexOf(lemma)) > -1 ||
+            (j = lujvoParts.indexOf(lemma)) > -1 ||
+            inLemma ||
+            inDefinition
       ) {
-        if (selmahoMatch) {
+        if (isSelmahoQuery) {
           score = /\*/.test(type) ? 70000 : 71000;
-        }
-        if (i > -1) {
+        } else if (i > -1) {
           score = 90000 - i;
         } else if (j > -1) {
           score = 80000 - j;
@@ -116,8 +113,11 @@ window.onload = () => {
       }
     }
     results.sort((a, b) => b[0] - a[0]);
+    if (!isSelmahoQuery && results.length > 100) {
+      results.length = 100;
+    }
     document.getElementById("results").replaceChildren(
-      ...results.slice(0, 50).flatMap((e) => {
+      ...results.flatMap((e) => {
         const dt = document.createElement("dt");
         const [lemma, type, definition] = e[1];
         const rafsi =
