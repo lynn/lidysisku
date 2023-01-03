@@ -20,6 +20,16 @@ const wordTypes = [
   "zei-lujvo",
 ];
 
+function getLujvoParts(word) {
+  const old = console.log;
+  console.log = () => {};
+  const parts = jvokaha(word);
+  console.log = old;
+  return parts
+    .filter((x) => x.length > 1)
+    .map((rafsi) => search_selrafsi_from_rafsi2(rafsi) ?? `-${rafsi}-`);
+}
+
 window.onload = () => {
   let lang = "en";
   let interval = undefined;
@@ -43,25 +53,20 @@ window.onload = () => {
     const natural = trimmed.replace(/[^\s\p{L}\d']/gu, "").toLowerCase();
     const apostrophized = natural.replaceAll("h", "'");
     const words = natural.split(/\s+/);
-    let results = [];
-    const full = new RegExp(
-      { ja: natural, en: `\\b${natural}e?s?\\b` }[lang] ?? `\\b${natural}\\b`,
-      "ui"
-    );
+    const specialPatterns = { ja: natural, en: `\\b${natural}e?s?\\b` };
+    const full = new RegExp(specialPatterns[lang] ?? `\\b${natural}\\b`, "ui");
     const x1isMatch = new RegExp(
       "1\\}?\\$ (is (a |[$x2_{} ]+|[a-z/ ]+)?)?" + natural
     );
     let lujvoParts = [];
+    let results = [];
     if (words.length === 1) {
       const selrafsi = search_selrafsi_from_rafsi2(apostrophized);
       if (selrafsi) {
         lujvoResult.innerHTML = "← " + selrafsi;
       } else {
         try {
-          const parts = jvokaha(apostrophized);
-          lujvoParts = parts
-            .filter((x) => x.length > 1)
-            .map((rafsi) => search_selrafsi_from_rafsi2(rafsi) ?? `-${rafsi}-`);
+          lujvoParts = getLujvoParts(apostrophized);
           lujvoResult.innerHTML = "← " + lujvoParts.join(" ");
         } catch (e) {
           lujvoParts = [];
@@ -78,8 +83,8 @@ window.onload = () => {
       }
     }
     const isSelmahoQuery = /^[A-Zh0-9*]+$/.test(trimmed);
-    for (const e of jvs) {
-      const [lemma, type, definition] = e;
+    for (const entry of jvs) {
+      const [lemma, type, definition] = entry;
       let score = 0;
       const inLemma = lemma.includes(natural) || lemma.includes(apostrophized);
       const inDefinition = full.test(definition);
@@ -110,7 +115,7 @@ window.onload = () => {
           if (full.test(definition)) score += 8;
           if (gismuRegex.test(lemma)) score += type === 5 ? 1 : 5;
         }
-        results.push([score, e]);
+        results.push([score, entry]);
       }
     }
     results.sort((a, b) => b[0] - a[0]);
@@ -197,15 +202,12 @@ window.onload = () => {
   const fromParam = window.location.search.replace("?", "");
   setLang(fromParam ? fromParam : localStorage.getItem("lang") ?? "en");
 
-  search.addEventListener("keyup", (e) => {
+  function goDebounced() {
     window.clearTimeout(interval);
     interval = window.setTimeout(go, 15);
-  });
-  
-  search.addEventListener("paste", (e) => {
-    window.clearTimeout(interval);
-    interval = window.setTimeout(go, 15);
-  });
+  }
+  search.addEventListener("keyup", goDebounced);
+  search.addEventListener("paste", goDebounced);
 
   for (const e of document.getElementsByClassName("lang")) {
     e.addEventListener("click", () => {
