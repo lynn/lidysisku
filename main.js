@@ -72,6 +72,7 @@ window.onload = () => {
       try {
         const lujvo = jvozba(words).filter((x) => /[aeiou]$/.test(x.lujvo));
         lujvoResult.innerHTML = "→ " + lujvo[0].lujvo;
+        words.unshift(lujvo[0].lujvo);
       } catch (e) {
         lujvoResult.innerHTML = "";
       }
