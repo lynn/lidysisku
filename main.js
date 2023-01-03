@@ -194,6 +194,11 @@ window.onload = () => {
     window.clearTimeout(interval);
     interval = window.setTimeout(go, 15);
   });
+  
+  search.addEventListener("paste", (e) => {
+    window.clearTimeout(interval);
+    interval = window.setTimeout(go, 15);
+  });
 
   for (const e of document.getElementsByClassName("lang")) {
     e.addEventListener("click", () => {
