@@ -20,6 +20,12 @@ const wordTypes = [
   "zei-lujvo",
 ];
 
+function setDark(dark) {
+  document.getElementById("lightswitch").innerText = dark ? "🌙" : "🌞";
+  document.body.className = dark ? "dark" : "";
+  localStorage.setItem("theme", dark ? "dark" : "light");
+}
+
 function getLujvoParts(word) {
   const old = console.log;
   console.log = () => {};
@@ -30,10 +36,23 @@ function getLujvoParts(word) {
     .map((rafsi) => search_selrafsi_from_rafsi2(rafsi) ?? `-${rafsi}-`);
 }
 
-window.onload = () => {
+window.addEventListener("DOMContentLoaded", () => {
   let lang = "en";
   let interval = undefined;
 
+  const theme =
+    localStorage.getItem("theme") ??
+    (window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light");
+  setDark(theme === "dark");
+  setTimeout(() => {
+    document.body.style.transition = "color 0.2s,background-color 0.2s";
+  }, 0);
+  document.getElementById("lightswitch").addEventListener("click", () => {
+    setDark(document.body.className !== "dark");
+  });
   const search = document.getElementById("search");
   const lujvoResult = document.getElementById("lujvo_result");
 
@@ -224,4 +243,4 @@ window.onload = () => {
     };
     registerServiceWorker();
   }
-};
+});
