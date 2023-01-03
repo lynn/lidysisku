@@ -127,10 +127,11 @@ window.onload = () => {
         let extra =
           (type === 4 || type === 5 ? "*" : "") +
           (rafsi.length ? " → " + rafsi.join(" ") : "");
-        const jvs = document.createElement("a");
-        jvs.href = "https://jbovlaste.lojban.org/dict/" + lemma;
-        jvs.appendChild(document.createTextNode(lemma));
-        dt.appendChild(jvs);
+        const lemmaLink = document.createElement("a");
+        lemmaLink.href = "javascript:void(0)";
+        lemmaLink.onclick = () => doSearch(lemma);
+        lemmaLink.appendChild(document.createTextNode(lemma));
+        dt.appendChild(lemmaLink);
         if (extra) {
           const i = document.createElement("i");
           i.appendChild(document.createTextNode(extra));
@@ -147,6 +148,12 @@ window.onload = () => {
           a.appendChild(document.createTextNode(type));
           dt.appendChild(a);
         }
+        const jvs = document.createElement("a");
+        jvs.href = "https://jbovlaste.lojban.org/dict/" + lemma;
+        jvs.target = "_blank";
+        jvs.rel = "noopener noreferrer";
+        jvs.appendChild(document.createTextNode("↗️"));
+        dt.appendChild(jvs);
         const dd = document.createElement("dd");
         dd.appendChild(document.createTextNode(definition));
         dd.innerHTML = dd.innerHTML
