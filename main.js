@@ -69,7 +69,8 @@ window.addEventListener("DOMContentLoaded", () => {
       return;
     }
     window.history.replaceState(null, null, "?" + lang + "#" + trimmed);
-    const natural = trimmed.replace(/[^\s\p{L}\d']/gu, "").toLowerCase();
+    const noU2019 = trimmed.replaceAll("’", "'");
+    const natural = noU2019.replace(/[^\s\p{L}\d']/gu, "").toLowerCase();
     const apostrophized = natural.replaceAll("h", "'");
     const words = natural.split(/\s+/);
     const specialPatterns = { ja: natural, en: `\\b${natural}e?s?\\b` };
