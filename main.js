@@ -155,14 +155,14 @@ window.addEventListener("DOMContentLoaded", () => {
         lemmaLink.href = "javascript:void(0)";
         lemmaLink.onclick = () => doSearch(lemma);
         lemmaLink.appendChild(document.createTextNode(lemma));
+        if (obsolete) {
+          lemmaLink.className = "obsolete";
+        }
         dt.appendChild(lemmaLink);
         if (extra) {
           const i = document.createElement("i");
           i.appendChild(document.createTextNode(extra));
           dt.appendChild(i);
-        }
-        if (obsolete) {
-          dt.className = "obsolete";
         }
         if (typeof type === "string") {
           const a = document.createElement("a");
