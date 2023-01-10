@@ -56,10 +56,6 @@ window.addEventListener("DOMContentLoaded", () => {
   const search = document.getElementById("search");
   const lujvoResult = document.getElementById("lujvo_result");
 
-  function doSearch(query) {
-    search.value = query;
-    go();
-  }
   function go() {
     const trimmed = search.value.trim();
     lujvoResult.innerHTML = "";
@@ -153,8 +149,7 @@ window.addEventListener("DOMContentLoaded", () => {
           (type === 4 || type === 5 ? "*" : "") +
           (rafsi.length ? " → " + rafsi.join(" ") : "");
         const lemmaLink = document.createElement("a");
-        lemmaLink.href = "javascript:void(0)";
-        lemmaLink.onclick = () => doSearch(lemma);
+        lemmaLink.href = "#" + lemma;
         lemmaLink.appendChild(document.createTextNode(lemma));
         if (obsolete) {
           lemmaLink.className = "obsolete";
@@ -168,8 +163,7 @@ window.addEventListener("DOMContentLoaded", () => {
         if (typeof type === "string") {
           const a = document.createElement("a");
           a.className = "selmaho";
-          a.href = "javascript:void(0)";
-          a.onclick = () => doSearch(type);
+          a.href = "#" + type;
           a.appendChild(document.createTextNode(type));
           dt.appendChild(a);
         }
@@ -191,10 +185,13 @@ window.addEventListener("DOMContentLoaded", () => {
       })
     );
   }
-  function setLang(newLang) {
-    const query = (search.value = decodeURIComponent(
+  function setSearchFromHistory() {
+    return search.value = decodeURIComponent(
       location.href.split("#")[1] || ""
-    ));
+    );
+  }
+  function setLang(newLang) {
+    const query = setSearchFromHistory();
 
     lang = langs.includes(newLang) ? newLang : "en";
     window.history.replaceState(null, null, "?" + lang);
@@ -228,6 +225,10 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   search.addEventListener("keyup", goDebounced);
   search.addEventListener("paste", goDebounced);
+  window.addEventListener("popstate", () => {
+    setSearchFromHistory();
+    go();
+  });
 
   for (const e of document.getElementsByClassName("lang")) {
     e.addEventListener("click", () => {
