@@ -1,5 +1,5 @@
 // give your cache a name
-const cacheName = "lidysisku-cache";
+const cacheName = "lidysisku-cache-v1";
 
 // put the static assets and routes you want to cache here
 const filesToCache = [
@@ -16,7 +16,24 @@ const filesToCache = [
   "jvs-jbo.json",
 ];
 
-self.addEventListener("activate", (e) => self.clients.claim());
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches
+      .keys()
+      .then((keys) => {
+        return Promise.all(
+          keys.map((key) => {
+            if (key !== cacheName) {
+              return caches.delete(key);
+            }
+          })
+        );
+      })
+      .then(() => {
+        // return self.clients.claim();
+      })
+  );
+});
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
