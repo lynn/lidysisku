@@ -76,45 +76,59 @@ window.addEventListener("DOMContentLoaded", () => {
     );
     let lujvoParts = [];
     let results = [];
-    if (words.length === 1) {
-      const selrafsi = search_selrafsi_from_rafsi2(apostrophized);
-      if (selrafsi) {
-        lujvoResult.innerHTML = "← " + selrafsi;
-      } else {
+    const isSelmahoQuery =
+      /^[A-Zh0-9*]+$/.test(trimmed) && !/^[?*VC]+$/.test(trimmed);
+    const isGlob = /[?*VC]/.test(trimmed);
+    if (!isSelmahoQuery && !isGlob) {
+      if (words.length === 1) {
+        const selrafsi = search_selrafsi_from_rafsi2(apostrophized);
+        if (selrafsi) {
+          lujvoResult.innerHTML = "← " + selrafsi;
+        } else {
+          try {
+            lujvoParts = getLujvoParts(apostrophized);
+            lujvoResult.innerHTML = "← " + lujvoParts.join(" ");
+          } catch (e) {
+            lujvoParts = [];
+            lujvoResult.innerHTML = "";
+          }
+        }
+      } else if (words.length > 1) {
         try {
-          lujvoParts = getLujvoParts(apostrophized);
-          lujvoResult.innerHTML = "← " + lujvoParts.join(" ");
+          const lujvo = jvozba(words).filter((x) => /[aeiou]$/.test(x.lujvo));
+          lujvoResult.innerHTML = "→ " + lujvo[0].lujvo;
+          words.unshift(lujvo[0].lujvo);
         } catch (e) {
-          lujvoParts = [];
           lujvoResult.innerHTML = "";
         }
       }
-    } else if (words.length > 1) {
-      try {
-        const lujvo = jvozba(words).filter((x) => /[aeiou]$/.test(x.lujvo));
-        lujvoResult.innerHTML = "→ " + lujvo[0].lujvo;
-        words.unshift(lujvo[0].lujvo);
-      } catch (e) {
-        lujvoResult.innerHTML = "";
-      }
     }
-    const isSelmahoQuery = /^[A-Zh0-9*]+$/.test(trimmed);
+    let globRe = undefined;
+    if (isGlob) {
+      const reBody = trimmed
+        .replaceAll("V", "[aeiou]")
+        .replaceAll("C", "[bcdfgjklmnprstvxz]")
+        .replaceAll("?", ".")
+        .replaceAll(/\*+/g, ".*");
+      globRe = new RegExp("^" + reBody + "$", "i");
+    }
     for (const entry of jvs) {
       const [lemma, type, definition] = entry;
       let score = 0;
-      const inLemma = lemma.includes(natural) || lemma.includes(apostrophized);
-      const inDefinition = full.test(definition);
       let i = -1;
       let j = -1;
-      if (
-        isSelmahoQuery
-          ? typeof type === "string" &&
-            (trimmed === type || trimmed === type.replaceAll(/[\d*]/g, ""))
-          : (i = words.indexOf(lemma)) > -1 ||
-            (j = lujvoParts.indexOf(lemma)) > -1 ||
-            inLemma ||
-            inDefinition
-      ) {
+      const inLemma =
+        !isGlob && (lemma.includes(natural) || lemma.includes(apostrophized));
+      const matches = isSelmahoQuery
+        ? typeof type === "string" &&
+          (trimmed === type || trimmed === type.replaceAll(/[\d*]/g, ""))
+        : isGlob
+        ? globRe.test(lemma)
+        : (i = words.indexOf(lemma)) > -1 ||
+          (j = lujvoParts.indexOf(lemma)) > -1 ||
+          inLemma ||
+          full.test(definition);
+      if (matches) {
         if (isSelmahoQuery) {
           score = /\*/.test(type) ? 70000 : 71000;
         } else if (i > -1) {
@@ -175,20 +189,20 @@ window.addEventListener("DOMContentLoaded", () => {
         dt.appendChild(jvs);
         const dd = document.createElement("dd");
         dd.appendChild(document.createTextNode(definition));
-        dd.innerHTML = dd.innerHTML
-          .replace(full, "<mark>$&</mark>")
-          .replace(
-            /([\$=])(\w+)_\{?(\d+)\}?\$?/g,
-            (_, v, w, d) => `${v === "=" ? "=" : ""}<i>${w}</i><sub>${d}</sub>`
-          );
+        if (!isGlob && !isSelmahoQuery)
+          dd.innerHTML = dd.innerHTML.replace(full, "<mark>$&</mark>");
+        dd.innerHTML = dd.innerHTML.replace(
+          /([\$=])(\w+)_\{?(\d+)\}?\$?/g,
+          (_, v, w, d) => `${v === "=" ? "=" : ""}<i>${w}</i><sub>${d}</sub>`
+        );
         return [dt, dd];
       })
     );
   }
   function setSearchFromHistory() {
-    return search.value = decodeURIComponent(
+    return (search.value = decodeURIComponent(
       location.href.split("#")[1] || ""
-    );
+    ));
   }
   function setLang(newLang) {
     const query = setSearchFromHistory();
