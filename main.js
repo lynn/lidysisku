@@ -55,6 +55,11 @@ window.addEventListener("DOMContentLoaded", () => {
   });
   const search = document.getElementById("search");
   const lujvoResult = document.getElementById("lujvo_result");
+  document.getElementById("clear").addEventListener("click", () => {
+    search.value = "";
+    go();
+    search.focus();
+  });
 
   function go() {
     const trimmed = search.value.trim();
@@ -117,6 +122,7 @@ window.addEventListener("DOMContentLoaded", () => {
       let score = 0;
       let i = -1;
       let j = -1;
+      if (lemma.length > 70) continue; // joke words
       const inLemma =
         !isGlob && (lemma.includes(natural) || lemma.includes(apostrophized));
       const matches = isSelmahoQuery

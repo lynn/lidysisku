@@ -127,6 +127,17 @@
         right: 4px;
         top: 4px;
       }
+      button#clear {
+        border: none;
+        background: none;
+        margin-left: -2em;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      input:placeholder-shown + button#clear {
+        opacity: 0.2;
+        cursor: inherit;
+      }
     </style>
     <script src="sozysozbot_jvozba/docs/rafsi_list.js"></script>
     <script src="sozysozbot_jvozba/docs/scoring.js"></script>
@@ -157,6 +168,7 @@
         placeholder="loading..."
         disabled
       />
+      <button id="clear">✖</button>
       <span id="lujvo_result"></span>
       <dl id="results"></dl>
     </div>
