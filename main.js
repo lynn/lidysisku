@@ -21,7 +21,7 @@ const wordTypes = [
 ];
 
 function setDark(dark) {
-  document.getElementById("lightswitch").innerText = dark ? "🌙\ufe0e" : "☀\ufe0e";
+  document.getElementById("lightswitch").innerText = dark ? "🌜\ufe0e" : "☀\ufe0e";
   document.body.className = dark ? "dark" : "";
   localStorage.setItem("theme", dark ? "dark" : "light");
 }
@@ -191,7 +191,7 @@ window.addEventListener("DOMContentLoaded", () => {
         jvs.href = "https://jbovlaste.lojban.org/dict/" + lemma;
         jvs.target = "_blank";
         jvs.rel = "noopener noreferrer";
-        jvs.appendChild(document.createTextNode("↗️\ufe0e"));
+        jvs.appendChild(document.createTextNode("🡕"));
         dt.appendChild(jvs);
         const dd = document.createElement("dd");
         dd.appendChild(document.createTextNode(definition));
