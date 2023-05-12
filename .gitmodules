@@ -1,3 +1,3 @@
-[submodule "sozysozbot_jvozba"]
-	path = sozysozbot_jvozba
-	url = https://github.com/sozysozbot/sozysozbot_jvozba
+[submodule "latkerlo-jvotci"]
+	path = latkerlo-jvotci
+	url = https://github.com/latkerlo/latkerlo-jvotci.git
