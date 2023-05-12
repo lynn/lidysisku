@@ -26,16 +26,6 @@ function setDark(dark) {
   localStorage.setItem("theme", dark ? "dark" : "light");
 }
 
-function getLujvoParts(word) {
-  const old = console.log;
-  console.log = () => {};
-  const parts = jvokaha(word);
-  console.log = old;
-  return parts
-    .filter((x) => x.length > 1)
-    .map((rafsi) => search_selrafsi_from_rafsi2(rafsi) ?? `-${rafsi}-`);
-}
-
 window.addEventListener("DOMContentLoaded", () => {
   let lang = "en";
   let interval = undefined;
@@ -71,7 +61,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     window.history.replaceState(null, null, "?" + lang + "#" + trimmed);
     const noU2019 = trimmed.replaceAll("’", "'");
-    const natural = noU2019.replace(/[^\s\p{L}\d']/gu, "").toLowerCase();
+    const natural = noU2019.replace(/[^\s\p{L}\d'\-]/gu, "").toLowerCase();
     const apostrophized = natural.replaceAll("h", "'");
     const words = natural.split(/\s+/);
     const specialPatterns = { ja: natural, en: `\\b${natural}e?s?\\b` };
@@ -86,12 +76,12 @@ window.addEventListener("DOMContentLoaded", () => {
     const isGlob = /[?*VC]/.test(trimmed);
     if (!isSelmahoQuery && !isGlob) {
       if (words.length === 1) {
-        const selrafsi = search_selrafsi_from_rafsi2(apostrophized);
+        const selrafsi = searchSelrafsiFromRafsi(apostrophized);
         if (selrafsi) {
           lujvoResult.innerHTML = "← " + selrafsi;
         } else {
           try {
-            lujvoParts = getLujvoParts(apostrophized);
+            lujvoParts = getVeljvo(apostrophized);
             lujvoResult.innerHTML = "← " + lujvoParts.join(" ");
           } catch (e) {
             lujvoParts = [];
@@ -100,9 +90,9 @@ window.addEventListener("DOMContentLoaded", () => {
         }
       } else if (words.length > 1) {
         try {
-          const lujvo = jvozba(words).filter((x) => /[aeiou]$/.test(x.lujvo));
-          lujvoResult.innerHTML = "→ " + lujvo[0].lujvo;
-          words.unshift(lujvo[0].lujvo);
+          const [lujvo, _] = getLujvo(words);
+          lujvoResult.innerHTML = "→ " + lujvo;
+          words.unshift(lujvo);
         } catch (e) {
           lujvoResult.innerHTML = "";
         }
@@ -162,8 +152,7 @@ window.addEventListener("DOMContentLoaded", () => {
       ...results.flatMap((e) => {
         const dt = document.createElement("dt");
         const [lemma, type, definition] = e[1];
-        const rafsi =
-          gismu_rafsi_list$(lemma) ?? cmavo_rafsi_list$(lemma) ?? [];
+        const rafsi = RAFSI.get(lemma) ?? [];
         const obsolete = type >= 9 && type <= 12;
         let extra =
           (type === 4 || type === 5 ? "*" : "") +
