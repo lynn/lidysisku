@@ -14,6 +14,8 @@
       content="A fast, simple Lojban dictionary app."
     />
     <link rel="icon" type="image/png" href="favicon.png" />
+    <script src="Font-Awesome/js/fontawesome.js"></script>
+    <script src="Font-Awesome/js/solid.js"></script>
     <style>
       :root {
         font-size: 18px;
@@ -56,6 +58,9 @@
         color: var(--pelji);
         padding: 0rem 0.25rem;
       }
+      label[for=search] {
+        padding-right: 2px;
+      }
       input {
         font-family: var(--sanserife);
         font-size: 16px;
@@ -92,12 +97,16 @@
         font-size: 12px;
         border-radius: 3px;
         padding: 1px 4px;
-        vertical-align: middle;
+        vertical-align: text-bottom;
         color: inherit;
         text-decoration: none;
+        margin-bottom: 1px;
       }
       dt a:hover {
         text-decoration: underline;
+      }
+      button:not(.lang) {
+        padding: 3px;
       }
       button.lang {
         flex: 1;
@@ -130,9 +139,11 @@
       button#clear {
         border: none;
         background: none;
-        margin-left: -2em;
+        margin-left: -28px;
+        margin-right: 6px;
         font-size: 16px;
         cursor: pointer;
+        color: var(--xinmo);
       }
       input:placeholder-shown + button#clear {
         opacity: 0.2;
@@ -158,7 +169,7 @@
         <button class="lang" data-lang="ja">日本語</button>
         <button class="lang" data-lang="jbo">lojban</button>
       </div>
-      <label for="search">🔍&#xFE0E; </label>
+      <label for="search"><i class="fa-solid fa-magnifying-glass"></i></label>
       <input id="exp_rafsi" type="checkbox" checked style="display: none" />
       <input
         autocomplete="off"
@@ -169,7 +180,7 @@
         placeholder="loading..."
         disabled
       />
-      <button id="clear">✖&#xFE0E;</button>
+      <button id="clear"><i class="fa-solid fa-square-xmark"></i></button>
       <span id="lujvo_result"></span>
       <dl id="results"></dl>
     </div>
