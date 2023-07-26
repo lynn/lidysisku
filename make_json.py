@@ -19,10 +19,11 @@ types = [
 ]
 
 for lang in ["en", "ja", "jbo"]:
-    root = ET.parse(f"jvs-{lang}.xml").getroot()
+    root = ET.parse(f"jbovlaste-{lang}.xml").getroot()
     data = []
     for valsi in root.iter("valsi"):
         word = valsi.get("word")
+        if valsi.get("type") == "nalvla": continue
         selmaho = valsi.findtext("selmaho") or types.index(valsi.get("type"))
         definition = valsi.findtext("definition") or ""
         data.append([word, selmaho, definition])
