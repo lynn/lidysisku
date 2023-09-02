@@ -25,19 +25,22 @@ function setDark(dark) {
   document.getElementById("lightswitch").innerHTML = 
     `<i class="fa-solid fa-fw fa-${sunOrMoon}"></i>`;
   document.body.className = dark ? "dark" : "";
-  localStorage.setItem("theme", dark ? "dark" : "light");
+  try {
+    localStorage.setItem("theme", dark ? "dark" : "light");
+  } catch (e) {}
 }
 
 window.addEventListener("DOMContentLoaded", () => {
   let lang = "en";
   let interval = undefined;
 
-  const theme =
-    localStorage.getItem("theme") ??
-    (window.matchMedia &&
+  let theme = (window.matchMedia &&
     window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
       : "light");
+  try {
+    theme = localStorage.getItem("theme") ?? theme;
+  } catch (e) {}
   setDark(theme === "dark");
   setTimeout(() => {
     document.body.style.transition = "color 0.2s,background-color 0.2s";
@@ -206,7 +209,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
     lang = langs.includes(newLang) ? newLang : "en";
     window.history.replaceState(null, null, "?" + lang);
-    localStorage.setItem("lang", lang);
+    try {
+      localStorage.setItem("lang", lang);
+    } catch (e) {}
     search.placeholder = "loading...";
     search.disabled = true;
     fetch(`./jvs-${lang}.json`, {
@@ -228,7 +233,11 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   const fromParam = window.location.search.replace("?", "");
-  setLang(fromParam ? fromParam : localStorage.getItem("lang") ?? "en");
+  let userLang = "en";
+  try {
+    userLang = localStorage.getItem("lang") ?? userLang;
+  } catch (e) {}
+  setLang(fromParam ? fromParam : userLang);
 
   function goDebounced() {
     window.clearTimeout(interval);
