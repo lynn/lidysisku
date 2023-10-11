@@ -248,8 +248,7 @@ window.addEventListener("DOMContentLoaded", () => {
     window.clearTimeout(interval);
     interval = window.setTimeout(go, 15);
   }
-  search.addEventListener("keyup", goDebounced);
-  search.addEventListener("paste", goDebounced);
+  search.addEventListener("input", goDebounced);
   window.addEventListener("popstate", () => {
     setSearchFromHistory();
     go();
