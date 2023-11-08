@@ -78,7 +78,7 @@ window.addEventListener("DOMContentLoaded", () => {
     let lujvoParts = [];
     let results = [];
     const isSelmahoQuery =
-      /^[A-Zh0-9*]+$/.test(trimmed) && !/^[?*VC]+$/.test(trimmed);
+      /^[A-Zabch0-9*]+$/.test(trimmed) && !/^[?*VC]+$/.test(trimmed);
     const isGlob = /[?*VC]/.test(trimmed);
     if (!isSelmahoQuery && !isGlob) {
       if (words.length === 1) {
