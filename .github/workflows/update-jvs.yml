@@ -1,0 +1,30 @@
+name: Update dictionary
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-dictionary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch new dictionaries and make JSON
+        run: |
+          for lang in en ja jbo; do
+            curl "https://jbovlaste.lojban.org/export/xml-export.html?lang=$lang&positive_scores_only=0&bot_key=z2BsnKYJhAB0VNsl" > "jbovlaste-$lang.xml"
+          done
+          python3 make_json.py
+
+      - name: Create PR
+        id: cpr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: Update dictionary
+          committer: GitHub <noreply@github.com>
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          signoff: false
+          branch: update-dictionary
+          delete-branch: true
+          title: 'Update dictionary'
+          assignees: lynn
+          reviewers: lynn
