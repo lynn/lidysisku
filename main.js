@@ -35,10 +35,11 @@ window.addEventListener("DOMContentLoaded", () => {
   let lang = "en";
   let interval = undefined;
 
-  let theme = (window.matchMedia &&
+  let theme =
+    window.matchMedia &&
     window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
-      : "light");
+      : "light";
   try {
     theme = localStorage.getItem("theme") ?? theme;
   } catch (e) {}
@@ -58,7 +59,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   function go() {
-    const trimmed = search.value.trim();
+    let trimmed = search.value.trim();
     lujvoResult.innerHTML = "";
     if (!trimmed) {
       document.getElementById("results").replaceChildren();
@@ -66,8 +67,8 @@ window.addEventListener("DOMContentLoaded", () => {
       return;
     }
     window.history.replaceState(null, null, "?" + lang + "#" + trimmed);
-    const noU2019 = trimmed.replaceAll("’", "'");
-    const natural = noU2019.replace(/[^\s\p{L}\d'\-]/gu, "").toLowerCase();
+    trimmed = trimmed.replaceAll("’", "'");
+    const natural = trimmed.replace(/[^\s\p{L}\d'\-]/gu, "").toLowerCase();
     const apostrophized = natural.replaceAll("h", "'");
     const words = natural.split(/\s+/);
     const specialPatterns = { ja: natural, en: `\\b${natural}e?s?\\b` };
@@ -77,10 +78,9 @@ window.addEventListener("DOMContentLoaded", () => {
     );
     let lujvoParts = [];
     let results = [];
-    const isSelmahoQuery =
-      /^[A-Z][A-Zabch0-9*]*$/.test(trimmed) && !/^[?*VC]+$/.test(trimmed);
-    const isGlob = /[?*VC]/.test(trimmed);
-    if (!isSelmahoQuery && !isGlob) {
+    const isGlob = /^[?*VCa-z']+$/.test(trimmed);
+    const isSelmahoQuery = /^[A-Z][A-Zabch0-9*]*$/.test(trimmed) && !isGlob;
+    if (!isSelmahoQuery) {
       if (words.length === 1) {
         const selrafsi = searchSelrafsiFromRafsi(apostrophized);
         if (selrafsi) {
