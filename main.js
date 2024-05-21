@@ -20,190 +20,229 @@ const wordTypes = [
   "zei-lujvo",
 ];
 
-function setDark(dark) {
-  const sunOrMoon = dark ? "moon" : "sun";
-  document.getElementById(
-    "lightswitch"
-  ).innerHTML = `<i class="fa-solid fa-fw fa-${sunOrMoon}"></i>`;
-  document.body.className = dark ? "dark" : "";
+let lang = "en";
+
+function lget(key) {
   try {
-    localStorage.setItem("theme", dark ? "dark" : "light");
+    return localStorage.getItem(key);
+  } catch (e) {
+    return null;
+  }
+}
+
+function lset(key, value) {
+  try {
+    localStorage.setItem(key, value);
   } catch (e) {}
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  let lang = "en";
-  let interval = undefined;
+const prefersDark = () =>
+  window.matchMedia &&
+  window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-  let theme =
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  try {
-    theme = localStorage.getItem("theme") ?? theme;
-  } catch (e) {}
-  setDark(theme === "dark");
+const getTheme = () => lget("theme") ?? (prefersDark ? "dark" : "light");
+
+function queryLink(query) {
+  const a = document.createElement("a");
+  a.appendChild(document.createTextNode(query));
+  a.href = "#" + encodeURIComponent(query);
+  return a;
+}
+
+function jvsLink(lemma, votes) {
+  const a = document.createElement("a");
+  a.href = "https://jbovlaste.lojban.org/dict/" + lemma;
+  a.className = "jvs";
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  a.innerText =
+    votes > 999 ? "official" : votes >= 0 ? "+" + votes : "−" + -votes;
+  return a;
+}
+
+function renderResults(results, mark) {
+  return results.flatMap((e) => {
+    const dt = document.createElement("dt");
+    const [lemma, type, selmaho, votes, definition] = e[1];
+    const rafsi = RAFSI.get(lemma) ?? [];
+    const obsolete = type >= 9 && type <= 12;
+    let extra =
+      (type === 4 || type === 5 ? "*" : "") +
+      (rafsi.length ? " " + rafsi.join(" ") : "");
+    const lemmaLink = queryLink(lemma);
+    if (obsolete) {
+      lemmaLink.className = "obsolete";
+    }
+    dt.appendChild(lemmaLink);
+    if (extra) {
+      const i = document.createElement("i");
+      i.appendChild(document.createTextNode(extra));
+      dt.appendChild(i);
+    }
+    if (selmaho) {
+      const a = document.createElement("a");
+      a.className = "selmaho";
+      a.href = "#" + selmaho;
+      a.appendChild(document.createTextNode(selmaho));
+      dt.appendChild(a);
+    }
+    dt.appendChild(jvsLink(lemma, votes));
+    const dd = document.createElement("dd");
+    dd.appendChild(document.createTextNode(definition));
+    if (mark) dd.innerHTML = dd.innerHTML.replace(mark, "<mark>$&</mark>");
+    dd.innerHTML = dd.innerHTML.replace(
+      /([\$=])([a-z]+)_?\{?(\d+)\}?\$?/g,
+      (_, v, w, d) => `${v === "=" ? "=" : ""}<i>${w}</i><sub>${d}</sub>`
+    );
+    return [dt, dd];
+  });
+}
+
+function analyzeLujvo(words) {
+  if (words.length === 1) {
+    const valsi = words[0].replaceAll("h", "'");
+    const selrafsi = searchSelrafsiFromRafsi(valsi);
+    if (selrafsi) {
+      return [[], "← " + queryLink(selrafsi).outerHTML];
+    } else {
+      try {
+        lujvoParts = getVeljvo(valsi);
+        let result = "← " + queryLink(lujvoParts.join(" ")).outerHTML;
+        const [optimal, _] = getLujvo(lujvoParts);
+        if (optimal !== valsi) {
+          result += " → " + queryLink(optimal).outerHTML;
+        }
+        return [lujvoParts, result];
+      } catch (e) {
+        return [[], ""];
+      }
+    }
+  } else if (words.length > 1) {
+    try {
+      const [lujvo, _] = getLujvo(words);
+      return [[], "→ " + queryLink(lujvo).outerHTML, lujvo];
+    } catch (e) {
+      console.log(e);
+      return [[], ""];
+    }
+  }
+}
+
+function makeGlobRegex(query) {
+  const reBody = query
+    .replaceAll("V", "[aeiou]")
+    .replaceAll("C", "[bcdfgjklmnprstvxz]")
+    .replaceAll("?", ".")
+    .replaceAll(/\*+/g, ".*");
+  return new RegExp("^" + reBody + "$", "i");
+}
+
+function go() {
+  const search = document.getElementById("search");
+  const lujvoResult = document.getElementById("lujvo_result");
+
+  let trimmed = search.value.trim();
+  lujvoResult.innerHTML = "";
+  if (!trimmed) {
+    document.getElementById("results").replaceChildren();
+    window.history.replaceState(null, null, "?" + lang);
+    return;
+  }
+  window.history.replaceState(null, null, "?" + lang + "#" + trimmed);
+  trimmed = trimmed.replaceAll("’", "'");
+  const natural = trimmed.replace(/[^\s\p{L}\d'\-]/gu, "").toLowerCase();
+  const apostrophized = natural.replaceAll("h", "'");
+  const words = natural.split(/\s+/);
+  const lex = { ja: natural, en: `\\b${natural}e?s?\\b` };
+  const full = new RegExp(lex[lang] ?? `\\b${natural}\\b`, "ui");
+  const x1is = new RegExp("1\\}?\\$ (is (a |[$x2_{} ]+|[a-z/ ]+)?)?" + natural);
+  const isGlob = /^[?*VCa-z']+$/.test(trimmed) && /[?*VC]/.test(trimmed);
+  const globRe = isGlob ? makeGlobRegex(trimmed) : undefined;
+  const isSelmahoQuery = /^[A-Z][A-Zabch0-9*]*$/.test(trimmed) && !isGlob;
+  const [lujvoParts, lujvoInfo, lujvoWord] = analyzeLujvo(words);
+  lujvoResult.innerHTML = lujvoInfo;
+  if (lujvoWord) words.unshift(lujvoWord);
+  let results = [];
+  for (const entry of jvs) {
+    const [lemma, type, selmaho, votes, definition] = entry;
+    let score = 0;
+    let i = -1;
+    let j = -1;
+    if (votes < -1) continue; // really bad words
+    if (lemma.length > 70) continue; // joke words
+    const inLemma =
+      !isGlob && (lemma.includes(natural) || lemma.includes(apostrophized));
+    const matches = isSelmahoQuery
+      ? selmaho &&
+        (trimmed === selmaho || trimmed === selmaho.replaceAll(/[\d*]/g, ""))
+      : isGlob
+      ? globRe.test(lemma)
+      : (i = words.indexOf(lemma)) > -1 ||
+        (j = lujvoParts.indexOf(lemma)) > -1 ||
+        inLemma ||
+        full.test(definition);
+    if (matches) {
+      if (isSelmahoQuery) {
+        score = /\*/.test(selmaho) ? 70000 : 71000;
+      } else if (i > -1) {
+        score = 90000 - i;
+      } else if (j > -1) {
+        score = 80000 - j;
+      } else {
+        if (definition.length > 400) score -= 100;
+        if (type >= 9 && type <= 12) score -= 100; // obsolete
+        if (inLemma) score += 5;
+        if (x1is.test(definition)) score += 7;
+        if (lemma === natural || lemma === apostrophized) score += 100;
+        if (full.test(lemma)) score += 8;
+        if (full.test(definition)) score += 8;
+        if (gismuRegex.test(lemma)) score += type === 5 ? 1 : 5;
+        score += Math.min(votes, 5);
+      }
+      results.push([score, entry]);
+    }
+  }
+  results.sort((a, b) => b[0] - a[0]);
+  if (!isSelmahoQuery && results.length > 100) {
+    results.length = 100;
+  }
+  document
+    .getElementById("results")
+    .replaceChildren(
+      ...renderResults(results, isGlob || isSelmahoQuery ? undefined : full)
+    );
+}
+
+function setDark(dark) {
+  lset("theme", dark ? "dark" : "light");
+  const icon = dark ? "moon" : "sun";
+  const html = `<i class="fa-solid fa-fw fa-${icon}"></i>`;
+  document.getElementById("lightswitch").innerHTML = html;
+  document.body.className = dark ? "dark" : "";
+}
+
+function searchFor(query) {
+  const search = document.getElementById("search");
+  search.value = query;
+  go();
+  search.focus();
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  let interval = undefined;
+  setDark(getTheme() === "dark");
   setTimeout(() => {
     document.body.style.transition = "color 0.2s,background-color 0.2s";
   }, 0);
   document.getElementById("lightswitch").addEventListener("click", () => {
     setDark(document.body.className !== "dark");
   });
-  const search = document.getElementById("search");
-  const lujvoResult = document.getElementById("lujvo_result");
-  document.getElementById("clear").addEventListener("click", () => {
-    search.value = "";
-    go();
-    search.focus();
-  });
 
-  function go() {
-    let trimmed = search.value.trim();
-    lujvoResult.innerHTML = "";
-    if (!trimmed) {
-      document.getElementById("results").replaceChildren();
-      window.history.replaceState(null, null, "?" + lang);
-      return;
-    }
-    window.history.replaceState(null, null, "?" + lang + "#" + trimmed);
-    trimmed = trimmed.replaceAll("’", "'");
-    const natural = trimmed.replace(/[^\s\p{L}\d'\-]/gu, "").toLowerCase();
-    const apostrophized = natural.replaceAll("h", "'");
-    const words = natural.split(/\s+/);
-    const specialPatterns = { ja: natural, en: `\\b${natural}e?s?\\b` };
-    const full = new RegExp(specialPatterns[lang] ?? `\\b${natural}\\b`, "ui");
-    const x1isMatch = new RegExp(
-      "1\\}?\\$ (is (a |[$x2_{} ]+|[a-z/ ]+)?)?" + natural
-    );
-    let lujvoParts = [];
-    let results = [];
-    const isGlob = /^[?*VCa-z']+$/.test(trimmed) && /[?*VC]/.test(trimmed);
-    const isSelmahoQuery = /^[A-Z][A-Zabch0-9*]*$/.test(trimmed) && !isGlob;
-    if (!isSelmahoQuery) {
-      if (words.length === 1) {
-        const selrafsi = searchSelrafsiFromRafsi(apostrophized);
-        if (selrafsi) {
-          lujvoResult.innerHTML = "← " + selrafsi;
-        } else {
-          try {
-            lujvoParts = getVeljvo(apostrophized);
-            lujvoResult.innerHTML = "← " + lujvoParts.join(" ");
-          } catch (e) {
-            lujvoParts = [];
-            lujvoResult.innerHTML = "";
-          }
-        }
-      } else if (words.length > 1) {
-        try {
-          const [lujvo, _] = getLujvo(words);
-          lujvoResult.innerHTML = "→ " + lujvo;
-          words.unshift(lujvo);
-        } catch (e) {
-          lujvoResult.innerHTML = "";
-        }
-      }
-    }
-    let globRe = undefined;
-    if (isGlob) {
-      const reBody = trimmed
-        .replaceAll("V", "[aeiou]")
-        .replaceAll("C", "[bcdfgjklmnprstvxz]")
-        .replaceAll("?", ".")
-        .replaceAll(/\*+/g, ".*");
-      globRe = new RegExp("^" + reBody + "$", "i");
-    }
-    for (const entry of jvs) {
-      const [lemma, type, selmaho, votes, definition] = entry;
-      let score = 0;
-      let i = -1;
-      let j = -1;
-      if (votes < -1) continue; // really bad words
-      if (lemma.length > 70) continue; // joke words
-      const inLemma =
-        !isGlob && (lemma.includes(natural) || lemma.includes(apostrophized));
-      const matches = isSelmahoQuery
-        ? selmaho &&
-          (trimmed === selmaho || trimmed === selmaho.replaceAll(/[\d*]/g, ""))
-        : isGlob
-        ? globRe.test(lemma)
-        : (i = words.indexOf(lemma)) > -1 ||
-          (j = lujvoParts.indexOf(lemma)) > -1 ||
-          inLemma ||
-          full.test(definition);
-      if (matches) {
-        if (isSelmahoQuery) {
-          score = /\*/.test(selmaho) ? 70000 : 71000;
-        } else if (i > -1) {
-          score = 90000 - i;
-        } else if (j > -1) {
-          score = 80000 - j;
-        } else {
-          if (definition.length > 400) score -= 100;
-          if (type >= 9 && type <= 12) score -= 100; // obsolete
-          if (inLemma) score += 5;
-          if (x1isMatch.test(definition)) score += 7;
-          if (lemma === natural || lemma === apostrophized) score += 100;
-          if (full.test(lemma)) score += 8;
-          if (full.test(definition)) score += 8;
-          if (gismuRegex.test(lemma)) score += type === 5 ? 1 : 5;
-          score += Math.min(votes, 5);
-        }
-        results.push([score, entry]);
-      }
-    }
-    results.sort((a, b) => b[0] - a[0]);
-    if (!isSelmahoQuery && results.length > 100) {
-      results.length = 100;
-    }
-    document.getElementById("results").replaceChildren(
-      ...results.flatMap((e) => {
-        const dt = document.createElement("dt");
-        const [lemma, type, selmaho, votes, definition] = e[1];
-        const rafsi = RAFSI.get(lemma) ?? [];
-        const obsolete = type >= 9 && type <= 12;
-        let extra =
-          (type === 4 || type === 5 ? "*" : "") +
-          (rafsi.length ? " → " + rafsi.join(" ") : "");
-        const lemmaLink = document.createElement("a");
-        lemmaLink.href = "#" + lemma;
-        lemmaLink.appendChild(document.createTextNode(lemma));
-        if (obsolete) {
-          lemmaLink.className = "obsolete";
-        }
-        dt.appendChild(lemmaLink);
-        if (extra) {
-          const i = document.createElement("i");
-          i.appendChild(document.createTextNode(extra));
-          dt.appendChild(i);
-        }
-        if (selmaho) {
-          const a = document.createElement("a");
-          a.className = "selmaho";
-          a.href = "#" + selmaho;
-          a.appendChild(document.createTextNode(selmaho));
-          dt.appendChild(a);
-        }
-        const jvs = document.createElement("a");
-        jvs.href = "https://jbovlaste.lojban.org/dict/" + lemma;
-        jvs.className = "jvs";
-        jvs.target = "_blank";
-        jvs.rel = "noopener noreferrer";
-        jvs.innerText =
-          votes > 999 ? "official" : votes >= 0 ? "+" + votes : "−" + -votes;
-        dt.appendChild(jvs);
-        const dd = document.createElement("dd");
-        dd.appendChild(document.createTextNode(definition));
-        if (!isGlob && !isSelmahoQuery)
-          dd.innerHTML = dd.innerHTML.replace(full, "<mark>$&</mark>");
-        dd.innerHTML = dd.innerHTML.replace(
-          /([\$=])(\w+)_\{?(\d+)\}?\$?/g,
-          (_, v, w, d) => `${v === "=" ? "=" : ""}<i>${w}</i><sub>${d}</sub>`
-        );
-        return [dt, dd];
-      })
-    );
-  }
+  const search = document.getElementById("search");
+  document
+    .getElementById("clear")
+    .addEventListener("click", () => searchFor(""));
+
   function setSearchFromHistory() {
     return (search.value = decodeURIComponent(
       location.href.split("#")[1] || ""
@@ -214,9 +253,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     lang = langs.includes(newLang) ? newLang : "en";
     window.history.replaceState(null, null, "?" + lang);
-    try {
-      localStorage.setItem("lang", lang);
-    } catch (e) {}
+    lset("lang", lang);
     search.placeholder = "loading...";
     search.disabled = true;
     fetch(`./jvs-${lang}.json`, {
@@ -238,21 +275,13 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   const fromParam = window.location.search.replace("?", "");
-  let userLang = "en";
-  try {
-    userLang = localStorage.getItem("lang") ?? userLang;
-  } catch (e) {}
-  setLang(fromParam ? fromParam : userLang);
-
+  setLang(fromParam || lget("lang") || "en");
   function goDebounced() {
     window.clearTimeout(interval);
     interval = window.setTimeout(go, 15);
   }
   search.addEventListener("input", goDebounced);
-  window.addEventListener("popstate", () => {
-    setSearchFromHistory();
-    go();
-  });
+  window.addEventListener("popstate", () => (setSearchFromHistory(), go()));
 
   for (const e of document.getElementsByClassName("lang")) {
     e.addEventListener("click", () => {
