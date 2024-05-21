@@ -1,24 +1,6 @@
 const langs = ["en", "ja", "jbo"];
-
 const gismuRegex =
   /^([bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou]|[bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][aeiou])$/;
-
-const wordTypes = [
-  "bu-letteral",
-  "cmavo",
-  "cmavo-compound",
-  "cmevla",
-  "experimental cmavo",
-  "experimental gismu",
-  "fu'ivla",
-  "gismu",
-  "lujvo",
-  "obsolete cmavo",
-  "obsolete cmevla",
-  "obsolete fu'ivla",
-  "obsolete zei-lujvo",
-  "zei-lujvo",
-];
 
 let lang = "en";
 
@@ -42,9 +24,10 @@ const prefersDark = () =>
 
 const getTheme = () => lget("theme") ?? (prefersDark ? "dark" : "light");
 
-function queryLink(query) {
+function queryLink(query, className) {
   const a = document.createElement("a");
   a.appendChild(document.createTextNode(query));
+  if (className) a.className = className;
   a.href = "#" + encodeURIComponent(query);
   return a;
 }
@@ -66,26 +49,15 @@ function renderResults(results, mark) {
     const [lemma, type, selmaho, votes, definition] = e[1];
     const rafsi = RAFSI.get(lemma) ?? [];
     const obsolete = type >= 9 && type <= 12;
-    let extra =
-      (type === 4 || type === 5 ? "*" : "") +
-      (rafsi.length ? " " + rafsi.join(" ") : "");
-    const lemmaLink = queryLink(lemma);
-    if (obsolete) {
-      lemmaLink.className = "obsolete";
-    }
-    dt.appendChild(lemmaLink);
+    const experimental = type === 4 || type === 5;
+    dt.appendChild(queryLink(lemma, obsolete ? "obsolete" : ""));
+    const extra = [experimental ? "*" : "", ...rafsi].join(" ");
     if (extra) {
       const i = document.createElement("i");
       i.appendChild(document.createTextNode(extra));
       dt.appendChild(i);
     }
-    if (selmaho) {
-      const a = document.createElement("a");
-      a.className = "selmaho";
-      a.href = "#" + selmaho;
-      a.appendChild(document.createTextNode(selmaho));
-      dt.appendChild(a);
-    }
+    if (selmaho) dt.appendChild(queryLink(selmaho, "selmaho"));
     dt.appendChild(jvsLink(lemma, votes));
     const dd = document.createElement("dd");
     dd.appendChild(document.createTextNode(definition));
@@ -122,7 +94,6 @@ function analyzeLujvo(words) {
       const [lujvo, _] = getLujvo(words);
       return [[], "→ " + queryLink(lujvo).outerHTML, lujvo];
     } catch (e) {
-      console.log(e);
       return [[], ""];
     }
   }
@@ -221,15 +192,45 @@ function setDark(dark) {
   document.body.className = dark ? "dark" : "";
 }
 
-function searchFor(query) {
+function setSearchFromHistory() {
+  const query = decodeURIComponent(location.href.split("#")[1] || "");
+  return (document.getElementById("search").value = query);
+}
+
+function setLang(newLang) {
   const search = document.getElementById("search");
-  search.value = query;
-  go();
-  search.focus();
+  const query = setSearchFromHistory();
+
+  lang = langs.includes(newLang) ? newLang : "en";
+  window.history.replaceState(null, null, "?" + lang);
+  lset("lang", lang);
+  search.placeholder = "loading...";
+  search.disabled = true;
+  fetch(`./jvs-${lang}.json`, {
+    headers: { accept: "application/json; charset=utf8;" },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      jvs = data;
+      search.value = query;
+      search.placeholder = "sisyvla";
+      search.disabled = false;
+      go();
+      search.focus();
+    });
+  for (const e of document.getElementsByClassName("lang")) {
+    e.className =
+      lang === e.attributes["data-lang"].value ? "lang active" : "lang";
+  }
+}
+
+let goInterval = undefined;
+function goDebounced() {
+  window.clearTimeout(goInterval);
+  goInterval = window.setTimeout(go, 15);
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  let interval = undefined;
   setDark(getTheme() === "dark");
   setTimeout(() => {
     document.body.style.transition = "color 0.2s,background-color 0.2s";
@@ -238,49 +239,8 @@ window.addEventListener("DOMContentLoaded", () => {
     setDark(document.body.className !== "dark");
   });
 
-  const search = document.getElementById("search");
-  document
-    .getElementById("clear")
-    .addEventListener("click", () => searchFor(""));
-
-  function setSearchFromHistory() {
-    return (search.value = decodeURIComponent(
-      location.href.split("#")[1] || ""
-    ));
-  }
-  function setLang(newLang) {
-    const query = setSearchFromHistory();
-
-    lang = langs.includes(newLang) ? newLang : "en";
-    window.history.replaceState(null, null, "?" + lang);
-    lset("lang", lang);
-    search.placeholder = "loading...";
-    search.disabled = true;
-    fetch(`./jvs-${lang}.json`, {
-      headers: { accept: "application/json; charset=utf8;" },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        jvs = data;
-        search.value = query;
-        search.placeholder = "sisyvla";
-        search.disabled = false;
-        go();
-        search.focus();
-      });
-    for (const e of document.getElementsByClassName("lang")) {
-      e.className =
-        lang === e.attributes["data-lang"].value ? "lang active" : "lang";
-    }
-  }
-
-  const fromParam = window.location.search.replace("?", "");
-  setLang(fromParam || lget("lang") || "en");
-  function goDebounced() {
-    window.clearTimeout(interval);
-    interval = window.setTimeout(go, 15);
-  }
-  search.addEventListener("input", goDebounced);
+  setLang(window.location.search.replace("?", "") || lget("lang") || "en");
+  document.getElementById("search").addEventListener("input", goDebounced);
   window.addEventListener("popstate", () => (setSearchFromHistory(), go()));
 
   for (const e of document.getElementsByClassName("lang")) {

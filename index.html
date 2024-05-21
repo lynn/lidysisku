@@ -139,16 +139,16 @@
         right: 4px;
         top: 4px;
       }
-      button#clear {
+      a#clear {
         border: none;
         background: none;
-        margin-left: -28px;
-        margin-right: 6px;
+        margin-left: -24px;
+        margin-right: 8px;
         font-size: 16px;
         cursor: pointer;
         color: var(--xinmo);
       }
-      input:placeholder-shown + button#clear {
+      input:placeholder-shown + a#clear {
         opacity: 0.2;
         cursor: inherit;
       }
@@ -183,7 +183,9 @@
         placeholder="loading..."
         disabled
       />
-      <button id="clear"><i class="fa-solid fa-square-xmark"></i></button>
+      <a href="#" id="clear" onclick="document.getElementById('search').focus()"
+        ><i class="fa-solid fa-square-xmark"></i
+      ></a>
       <span id="lujvo_result"></span>
       <dl id="results"></dl>
     </div>
