@@ -1,6 +1,7 @@
 [submodule "latkerlo-jvotci"]
 	path = latkerlo-jvotci
 	url = https://github.com/latkerlo/latkerlo-jvotci.git
+	branch = v1.x
 [submodule "Font-Awesome"]
 	path = Font-Awesome
 	url = https://github.com/paclatkerlo/Font-Awesome.git
