@@ -22,7 +22,7 @@ for lang in ["en", "ja", "jbo"]:
     root = ET.parse(f"jbovlaste-{lang}.xml").getroot()
     data = []
     for valsi in root.iter("entry"):
-        word = valsi.get("word")
+        word = valsi.findtext("word")
         ty = valsi.findtext("type")
         if ty == "nalvla": continue
         type_index = types.index(ty)
