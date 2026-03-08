@@ -21,14 +21,16 @@ types = [
 for lang in ["en", "ja", "jbo"]:
     root = ET.parse(f"jbovlaste-{lang}.xml").getroot()
     data = []
-    for valsi in root.iter("valsi"):
+    for valsi in root.iter("entry"):
         word = valsi.get("word")
-        if valsi.get("type") == "nalvla": continue
-        type_index = types.index(valsi.get("type"))
+        ty = valsi.findtext("type")
+        if ty == "nalvla": continue
+        type_index = types.index(ty)
         selmaho = valsi.findtext("selmaho") or ""
         score = int(valsi.findtext("score") or "0")
         definition = valsi.findtext("definition") or ""
         data.append([word, type_index, selmaho, score, definition])
+    if not data: raise Exception("no data found")
     js = json.dumps(data, ensure_ascii=False, separators=(',', ':'))
     with open(f"jvs-{lang}.json", "w") as f:
         f.write(js)
