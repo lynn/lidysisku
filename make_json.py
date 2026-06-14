@@ -16,6 +16,7 @@ types = [
     "obsolete fu'ivla",
     "obsolete zei-lujvo",
     "zei-lujvo",
+    "phrase",
 ]
 
 for lang in ["en", "ja", "jbo"]:
