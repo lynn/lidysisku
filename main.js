@@ -73,7 +73,7 @@ function renderResults(results, mark, query) {
       const ety = document.createElement("div");
       ety.className = "etymo";
       etymo[lemma].split(" ").forEach((w, k) => {
-        if (k) ety.appendChild(document.createTextNode(" "));
+        if (k) ety.appendChild(document.createTextNode(", "));
         const span = document.createElement("span");
         span.title = etymoSources[k] ?? "";
         span.appendChild(document.createTextNode(w));
