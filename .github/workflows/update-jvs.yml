@@ -3,7 +3,7 @@ name: Update dictionary
 on:
   workflow_dispatch:
   schedule:
-    - cron: 11 11 11 * *
+    - cron: 0 12 11 * *
 
 jobs:
   update-dictionary:
