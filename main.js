@@ -2,7 +2,10 @@ const langs = ["en", "ja", "jbo"];
 const gismuRegex =
   /^([bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou]|[bcdfghjklmnprstvxz][bcdfghjklmnprstvxz][aeiou][bcdfghjklmnprstvxz][aeiou])$/;
 
+const etymoSources = ["Chinese", "English", "Hindi", "Spanish", "Russian", "Arabic"];
+
 let lang = "en";
+let etymo = {};
 
 function lget(key) {
   try {
@@ -43,7 +46,7 @@ function jvsLink(lemma, votes) {
   return a;
 }
 
-function renderResults(results, mark) {
+function renderResults(results, mark, query) {
   return results.flatMap((e) => {
     const dt = document.createElement("dt");
     const [lemma, type, selmaho, votes, definition] = e[1];
@@ -66,6 +69,18 @@ function renderResults(results, mark) {
       /([\$=])([a-z]+)_?\{?(\d+)\}?\$?/g,
       (_, v, w, d) => `${v === "=" ? "=" : ""}<i>${w}</i><sub>${d}</sub>`
     );
+    if (query && lemma === query && etymo[lemma]) {
+      const ety = document.createElement("div");
+      ety.className = "etymo";
+      etymo[lemma].split(" ").forEach((w, k) => {
+        if (k) ety.appendChild(document.createTextNode(" "));
+        const span = document.createElement("span");
+        span.title = etymoSources[k] ?? "";
+        span.appendChild(document.createTextNode(w));
+        ety.appendChild(span);
+      });
+      dd.appendChild(ety);
+    }
     return [dt, dd];
   });
 }
@@ -180,7 +195,11 @@ function go() {
   document
     .getElementById("results")
     .replaceChildren(
-      ...renderResults(results, isGlob || isSelmahoQuery ? undefined : full)
+      ...renderResults(
+        results,
+        isGlob || isSelmahoQuery ? undefined : full,
+        gismuRegex.test(natural) ? natural : undefined
+      )
     );
 }
 
@@ -238,6 +257,16 @@ window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("lightswitch").addEventListener("click", () => {
     setDark(document.body.className !== "dark");
   });
+
+  fetch("./etymo.json", {
+    headers: { accept: "application/json; charset=utf8;" },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      etymo = data;
+      if (typeof jvs !== "undefined") go();
+    })
+    .catch(() => {});
 
   setLang(window.location.search.replace("?", "") || lget("lang") || "en");
   document.getElementById("search").addEventListener("input", goDebounced);
