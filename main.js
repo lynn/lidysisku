@@ -37,7 +37,7 @@ function queryLink(query, className) {
 
 function jvsLink(lemma, votes) {
   const a = document.createElement("a");
-  a.href = "https://jbovlaste.lojban.org/dict/" + lemma;
+  a.href = "https://lensisku.lojban.org/en/valsi/" + lemma;
   a.className = "jvs";
   a.target = "_blank";
   a.rel = "noopener noreferrer";
@@ -74,6 +74,7 @@ function renderResults(results, mark, query) {
       ety.className = "etymo";
       etymo[lemma].split(" ").forEach((w, k) => {
         if (k) ety.appendChild(document.createTextNode(", "));
+        else ety.appendChild(document.createTextNode("etymology: "));
         const span = document.createElement("span");
         span.title = etymoSources[k] ?? "";
         span.appendChild(document.createTextNode(w));
