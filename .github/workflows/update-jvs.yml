@@ -11,11 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch new dictionaries and make JSON
-        run: |
-          for lang in en ja jbo; do
-            curl "https://lensisku.lojban.org/api/export/cached/$lang/xml" > "jbovlaste-$lang.xml"
-          done
-          python3 make_json.py
+        run: python3 make_json.py
 
       - name: Create PR
         id: cpr
