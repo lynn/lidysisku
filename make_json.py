@@ -75,11 +75,13 @@ def make_data(definitions):
         for word, d in sorted(best.items(), key=lambda item: item[0].lower())
     ]
     if not data: raise Exception("no data found")
-    return data
+    notes = {word: d["notes"] for word, d in sorted(best.items(), key=lambda item: item[0].lower()) if d["notes"]}
+    return data, notes
 
 # Fetch everything before writing anything, so a failure can't leave partial output.
 dictionaries = {lang: make_data(get_definitions(langid)) for lang, langid in LANGIDS.items()}
-for lang, data in dictionaries.items():
-    js = json.dumps(data, ensure_ascii=False, separators=(',', ':'))
-    with open(f"jvs-{lang}.json", "w", encoding="utf-8") as f:
-        f.write(js)
+for lang, (data, notes) in dictionaries.items():
+    for prefix, content in (("jvs", data), ("notes", notes)):
+        js = json.dumps(content, ensure_ascii=False, separators=(',', ':'))
+        with open(f"{prefix}-{lang}.json", "w", encoding="utf-8") as f:
+            f.write(js)

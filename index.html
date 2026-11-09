@@ -14,8 +14,6 @@
       content="A fast, simple Lojban dictionary app."
     />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <script src="Font-Awesome/js/fontawesome.js"></script>
-    <script src="Font-Awesome/js/solid.js"></script>
     <style>
       :root {
         font-size: 18px;
@@ -34,6 +32,7 @@
         word-break: break-word;
       }
       body.dark {
+        color-scheme: dark;
         --xinmo: #e6bd84;
         --dukti: #e6bd84;
         --pelji: #222222;
@@ -41,9 +40,58 @@
       dd {
         margin-bottom: 0.5rem;
       }
-      .etymo {
+      sub,
+      sup {
+        line-height: 0;
+      }
+      .notes {
+        line-height: 1.4;
         font-family: var(--sanserife);
-        font-size: 12px;
+        font-size: 13px;
+        white-space: pre-line;
+        border-left: 1px solid;
+        padding-left: 12px;
+        padding-block: 2px;
+      }
+      .notes a {
+        color: inherit;
+      }
+      #results.no-notes .notes,
+      #results.no-notes .more {
+        display: none;
+      }
+      .notes.clamped {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        overflow: hidden;
+      }
+      button.more:not(.lang) {
+        background: none;
+        border: 0;
+        padding: 0;
+        color: inherit;
+        font: inherit;
+        font-size: 0.85em;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      .boxnote {
+        line-height: 1.4;
+        font-family: var(--sanserife);
+        border: 1px solid var(--xinmo);
+        border-radius: 3px;
+        padding: 6px 12px;
+        margin-top: 0.5em;
+        font-size: 13px;
+      }
+      .boxnote a {
+        color: inherit;
+      }
+      .etymo {
+        font-style: italic;
+        font-family: var(--sanserife);
+        font-size: 13px;
         margin-top: 2px;
       }
       dt,
@@ -66,6 +114,7 @@
         padding-right: 2px;
       }
       input {
+        accent-color: var(--dukti);
         font-family: var(--sanserife);
         font-size: 16px;
         border: 1px solid var(--dukti);
@@ -73,7 +122,6 @@
         padding: 4px 6px;
       }
       body.dark input {
-        background-color: #002;
         color: var(--xinmo);
       }
       #lujvo_result {
@@ -118,6 +166,7 @@
       }
       button.lang {
         flex: 1;
+        font-family: var(--sanserife);
         border: 1px solid var(--xinmo);
         border-radius: 4px;
         background-color: inherit;
@@ -143,6 +192,11 @@
         cursor: pointer;
         right: 4px;
         top: 4px;
+      }
+      .icon {
+        width: 1em;
+        height: 1em;
+        vertical-align: -0.125em;
       }
       a#clear {
         border: none;
@@ -177,7 +231,15 @@
         <button class="lang" data-lang="ja">日本語</button>
         <button class="lang" data-lang="jbo">lojban</button>
       </div>
-      <label for="search"><i class="fa-solid fa-magnifying-glass"></i></label>
+      <div style="display: flex; flex-wrap: wrap; gap: 4px 24px; margin-bottom: 8px; font-family: var(--sanserife); font-size: 14px">
+        <label><input type="checkbox" id="show_notes" /> show notes</label>
+        <label><input type="checkbox" id="match_partial" /> match partial words</label>
+      </div>
+      <label for="search"
+        ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="3" />
+          <path d="M15.5 15.5 21.5 21.5" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" /></svg
+      ></label>
       <input id="exp_rafsi" type="checkbox" checked style="display: none" />
       <input
         autocomplete="off"
@@ -188,7 +250,12 @@
         placeholder="loading..."
       />
       <a href="#" id="clear" onclick="document.getElementById('search').focus()"
-        ><i class="fa-solid fa-square-xmark"></i
+        ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            fill-rule="evenodd"
+            d="M6 2h12a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4zM8.4 6.6 12 10.2l3.6-3.6 1.8 1.8-3.6 3.6 3.6 3.6-1.8 1.8-3.6-3.6-3.6 3.6-1.8-1.8 3.6-3.6-3.6-3.6z"
+          /></svg
       ></a>
       <span id="lujvo_result"></span>
       <dl id="results"></dl>

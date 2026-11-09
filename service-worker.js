@@ -8,8 +8,6 @@ const filesToPrecache = [
   "./",
   "main.js",
   "favicon.png",
-  "Font-Awesome/js/fontawesome.js",
-  "Font-Awesome/js/solid.js",
   "latkerlo-jvotci/js/docs/data.js",
   "latkerlo-jvotci/js/docs/rafsi.js",
   "latkerlo-jvotci/js/docs/tarmi.js",
@@ -17,9 +15,13 @@ const filesToPrecache = [
   "latkerlo-jvotci/js/docs/jvozba.js",
   "latkerlo-jvotci/js/docs/katna.js",
   "etymo.json",
+  "boxnotes.json",
   "jvs-en.json",
   "jvs-ja.json",
   "jvs-jbo.json",
+  "notes-en.json",
+  "notes-ja.json",
+  "notes-jbo.json",
 ];
 
 const appPath = new URL("./", self.location).pathname;

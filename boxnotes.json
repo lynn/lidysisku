@@ -1,0 +1,16 @@
+{ "po": {"en": "Some speakers instead use {po} as a short form of {lo du'u} or {lo nu}. The terminator is {nei} or {tei}."}
+, "nei": {"en": "Some speakers instead use {nei} as a terminator for clauses opened by {po} (see the note there.)"}
+, "tei": {"en": "Some speakers instead use {tei} as a terminator for clauses opened by {po} (see the note there.)"}
+, "voi": {"en": "Some speakers instead use {voi} to mean {poi'i}. For example, {ro voi mi djica ke'a} means \"everything that I want\"."}
+, "ce": {"en": "Some speakers instead use {ce} to mean {ce'u}."}
+, "ki": {"en": "Some speakers instead use {ki} to mean {ke'a}."}
+, "tau": {"en": "Some speakers instead use {tau} to mean {tu'a}."}
+, "a": {"en": "Some speakers instead use {.a} to mean {.i pau}."}
+, "e": {"en": "Some speakers instead use {.e} to mean {.i ji'a}."}
+, "o": {"en": "Some speakers instead use {.o} to mean {.i ko'oi}."}
+, "u": {"en": "Some speakers instead use {.u} to mean {.i ku'i}."}
+, "xruti": {"en": "Sometimes used as though it were defined as: $x_1$ returns to earlier state $x_2$."}
+, "dukse": {"en": "Sometimes used as though it were defined as: $x_1$ is too $x_2$ for $x_3$ to happen."}
+, "jukni": {"en": "Often considered too broad. See {janka}, {lokra}, {karki}, {cilga}."}
+, "cinse": {"en": "Often considered too broad, and used in a limited sense like: $x_1$ has sexual orientation $x_2$ (ka). See {jenri}."}
+}
