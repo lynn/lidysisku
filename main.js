@@ -279,13 +279,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // if ("serviceWorker" in navigator) {
-  //   let registration;
-  //   const registerServiceWorker = async () => {
-  //     registration = await navigator.serviceWorker.register(
-  //       "./service-worker.js"
-  //     );
-  //   };
-  //   registerServiceWorker();
-  // }
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./service-worker.js");
+  }
 });

@@ -1,50 +1,72 @@
-// // give your cache a name
-// const cacheName = "lidysisku-cache-v1";
+// Stale-while-revalidate: answer from the cache, then refresh it in the
+// background, so returning visitors get updates on their next load.
+const cacheName = "lidysisku-v2";
 
-// // put the static assets and routes you want to cache here
-// const filesToCache = [
-//   "/",
-//   "index.html",
-//   "main.js",
-//   "sozysozbot_jvozba/docs/rafsi_list.js",
-//   "sozysozbot_jvozba/docs/scoring.js",
-//   "sozysozbot_jvozba/docs/tools.js",
-//   "sozysozbot_jvozba/docs/jvokaha.js",
-//   "sozysozbot_jvozba/docs/jvozba.js",
-//   "jvs-en.json",
-//   "jvs-ja.json",
-//   "jvs-jbo.json",
-// ];
+// Files the first visit fetches before this worker is in control. A missing
+// file is skipped rather than failing the install.
+const filesToPrecache = [
+  "./",
+  "main.js",
+  "favicon.png",
+  "Font-Awesome/js/fontawesome.js",
+  "Font-Awesome/js/solid.js",
+  "latkerlo-jvotci/js/docs/data.js",
+  "latkerlo-jvotci/js/docs/rafsi.js",
+  "latkerlo-jvotci/js/docs/tarmi.js",
+  "latkerlo-jvotci/js/docs/tools.js",
+  "latkerlo-jvotci/js/docs/jvozba.js",
+  "latkerlo-jvotci/js/docs/katna.js",
+  "etymo.json",
+  "jvs-en.json",
+  "jvs-ja.json",
+  "jvs-jbo.json",
+];
 
-// self.addEventListener("activate", (event) => {
-//   event.waitUntil(
-//     caches
-//       .keys()
-//       .then((keys) => {
-//         return Promise.all(
-//           keys.map((key) => {
-//             if (key !== cacheName) {
-//               return caches.delete(key);
-//             }
-//           })
-//         );
-//       })
-//       .then(() => {
-//         // return self.clients.claim();
-//       })
-//   );
-// });
+const appPath = new URL("./", self.location).pathname;
 
-// self.addEventListener("install", (e) => {
-//   e.waitUntil(
-//     caches.open(cacheName).then((cache) => cache.addAll(filesToCache))
-//   );
-// });
+self.addEventListener("install", (e) => {
+  e.waitUntil(
+    (async () => {
+      const cache = await caches.open(cacheName);
+      await Promise.allSettled(
+        filesToPrecache.map((file) =>
+          cache.add(new Request(file, { cache: "reload" }))
+        )
+      );
+      await self.skipWaiting();
+    })()
+  );
+});
 
-// self.addEventListener("fetch", (e) => {
-//   e.respondWith(
-//     caches
-//       .match(e.request)
-//       .then((response) => (response ? response : fetch(e.request)))
-//   );
-// });
+self.addEventListener("activate", (e) => {
+  e.waitUntil(
+    (async () => {
+      for (const key of await caches.keys()) {
+        if (key !== cacheName) await caches.delete(key);
+      }
+      await self.clients.claim();
+    })()
+  );
+});
+
+self.addEventListener("fetch", (e) => {
+  const url = new URL(e.request.url);
+  if (e.request.method !== "GET" || url.origin !== self.location.origin) return;
+
+  // The app rewrites its URL to ?lang#query; all of those are the same page.
+  const key = url.pathname === appPath ? "./" : e.request;
+
+  e.respondWith(
+    (async () => {
+      const cache = await caches.open(cacheName);
+      const cached = await cache.match(key, { ignoreVary: true });
+      const fresh = fetch(e.request).then(async (response) => {
+        if (response.ok) await cache.put(key, response.clone());
+        return response;
+      });
+      if (!cached) return fresh;
+      e.waitUntil(fresh.catch(() => {}));
+      return cached;
+    })()
+  );
+});
