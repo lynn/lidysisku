@@ -191,8 +191,8 @@ function go() {
     }
   }
   results.sort((a, b) => b[0] - a[0]);
-  if (!isSelmahoQuery && results.length > 100) {
-    results.length = 100;
+  if (!isSelmahoQuery && results.length > 200) {
+    results.length = 200;
   }
   document
     .getElementById("results")
