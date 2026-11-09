@@ -60,6 +60,9 @@ const renderMath = (html) =>
     (_, v, w, d) => `${v === "=" ? "=" : ""}<i>${w}</i><sub>${d}</sub>`
   );
 
+const boxnoteIcon =
+  '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM10.7 6h2.6l-.4 8.5h-1.8zM12 15.8a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/></svg>';
+
 function renderNote(className, text) {
   const div = document.createElement("div");
   div.className = className;
@@ -125,7 +128,11 @@ function renderResults(results, mark, query) {
     if (mark) dd.innerHTML = dd.innerHTML.replace(mark, "<mark>$&</mark>");
     dd.innerHTML = renderMath(dd.innerHTML);
     const boxnote = boxnotes[lemma]?.[lang];
-    if (boxnote) dd.appendChild(renderNote("boxnote", boxnote));
+    if (boxnote) {
+      const box = renderNote("boxnote", boxnote);
+      box.insertAdjacentHTML("afterbegin", boxnoteIcon);
+      dd.appendChild(box);
+    }
     const ety =
       query && lemma === query && etymo[lemma]
         ? renderEtymology(lemma)
