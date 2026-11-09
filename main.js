@@ -46,7 +46,7 @@ function queryLink(query, className) {
 function jvsLink(lemma, votes) {
   const a = document.createElement("a");
   a.href = "https://lensisku.lojban.org/en/valsi/" + lemma;
-  a.className = "jvs";
+  a.className = votes > 999 ? "jvs official" : "jvs";
   a.target = "_blank";
   a.rel = "noopener noreferrer";
   a.innerText =
