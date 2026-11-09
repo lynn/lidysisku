@@ -9,8 +9,10 @@
 , "e": {"en": "Some speakers instead use {.e} to mean {.i ji'a}."}
 , "o": {"en": "Some speakers instead use {.o} to mean {.i ko'oi}."}
 , "u": {"en": "Some speakers instead use {.u} to mean {.i ku'i}."}
-, "xruti": {"en": "Sometimes used as though it were defined as: $x_1$ returns to earlier state $x_2$."}
+, "cinse": {"en": "Often considered too broad, and used in a limited sense like: $x_1$ has sexual orientation $x_2$ (ka). See {jenri}."}
 , "dukse": {"en": "Sometimes used as though it were defined as: $x_1$ is too $x_2$ for $x_3$ to happen."}
 , "jukni": {"en": "Often considered too broad. See {janka}, {lokra}, {karki}, {cilga}."}
-, "cinse": {"en": "Often considered too broad, and used in a limited sense like: $x_1$ has sexual orientation $x_2$ (ka). See {jenri}."}
+, "stagi": {"en": "The $x_2$ specifies which portion of $x_3$ it is: lo najgenja cu stagi *lo genja* fi la'oi ly. Daucus carota .ly. = “carrots are the edible *roots* of Daucus carota.”"}
+, "xruti": {"en": "Sometimes used as though it were defined as: $x_1$ returns to earlier state $x_2$."}
+, "zajba": {"en": "Sometimes generalized to: $x_1$ does athletics/exercise $x_2$."}
 }
