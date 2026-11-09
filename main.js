@@ -136,6 +136,7 @@ function go() {
     return;
   }
   window.history.replaceState(null, null, "?" + lang + "#" + trimmed);
+  if (!jvs) return; // setLang searches again once the dictionary arrives
   trimmed = trimmed.replaceAll("’", "'");
   const natural = trimmed.replace(/[^\s\p{L}\d'\-]/gu, "").toLowerCase();
   const apostrophized = natural.replaceAll("h", "'");
@@ -219,24 +220,23 @@ function setSearchFromHistory() {
 
 function setLang(newLang) {
   const search = document.getElementById("search");
-  const query = setSearchFromHistory();
 
   lang = langs.includes(newLang) ? newLang : "en";
   window.history.replaceState(null, null, "?" + lang);
   lset("lang", lang);
   search.placeholder = "loading...";
-  search.disabled = true;
+  search.focus();
+  jvs = undefined;
+  const requested = lang;
   fetch(`./jvs-${lang}.json`, {
     headers: { accept: "application/json; charset=utf8;" },
   })
     .then((res) => res.json())
     .then((data) => {
+      if (lang !== requested) return;
       jvs = data;
-      search.value = query;
       search.placeholder = "sisyvla";
-      search.disabled = false;
       go();
-      search.focus();
     });
   for (const e of document.getElementsByClassName("lang")) {
     e.className =
@@ -265,10 +265,11 @@ window.addEventListener("DOMContentLoaded", () => {
     .then((res) => res.json())
     .then((data) => {
       etymo = data;
-      if (typeof jvs !== "undefined") go();
+      if (jvs) go();
     })
     .catch(() => {});
 
+  setSearchFromHistory();
   setLang(window.location.search.replace("?", "") || lget("lang") || "en");
   document.getElementById("search").addEventListener("input", goDebounced);
   window.addEventListener("popstate", () => (setSearchFromHistory(), go()));
