@@ -1,16 +1,26 @@
 { "po": {"en": "Some speakers instead use {po} as a short form of {lo du'u} or {lo nu}. The terminator is {nei} or {tei}."}
-, "nei": {"en": "Some speakers instead use {nei} as a terminator for clauses opened by {po} (see the note there.)"}
-, "tei": {"en": "Some speakers instead use {tei} as a terminator for clauses opened by {po} (see the note there.)"}
-, "voi": {"en": "Some speakers instead use {voi} to mean {poi'i}. For example, {ro voi mi djica ke'a} means \"everything that I want\"."}
 , "ce": {"en": "Some speakers instead use {ce} to mean {ce'u}."}
 , "ki": {"en": "Some speakers instead use {ki} to mean {ke'a}."}
+, "nei": {"en": "Some speakers instead use {nei} as a terminator for clauses opened by {po} (see the note there.)"}
 , "tau": {"en": "Some speakers instead use {tau} to mean {tu'a}."}
+, "tei": {"en": "Some speakers instead use {tei} as a terminator for clauses opened by {po} (see the note there.)"}
+, "voi": {"en": "Some speakers instead use {voi} to mean {poi'i}. For example, {ro voi mi djica ke'a} means \"everything that I want\"."}
 , "a": {"en": "Some speakers instead use {.a} to mean {.i pau}."}
 , "e": {"en": "Some speakers instead use {.e} to mean {.i ji'a}."}
 , "o": {"en": "Some speakers instead use {.o} to mean {.i ko'oi}."}
 , "u": {"en": "Some speakers instead use {.u} to mean {.i ku'i}."}
+, "ua": {"en": "Used more generally to express understanding or non-understanding."}
+, "e'i": {"en": "Under a BPFK redefinition, this word *imposes* a constraint instead."}
+, "lo": {"en": "This is “classic” {lo} as introduced in CLL. The modern BPFK definition is: “Generic article. It converts a selbri, selecting its first argument, into a sumti. The resulting expression refers generically to any or some individual or individuals that fit as the first argument of the selbri.” But interpretations and usage vary. In any case, {lo plise} means “(a/the) apple(s)”."}
+, "le": {"en": "This is “classic” {le} as introduced in CLL. The modern BPFK definition is: “Specific article. It converts a selbri, selecting its first argument, into a sumti. The resulting expression refers specifically to any or some individual or individuals that the speaker has in mind and which the speaker describes as fitting the first argument of the selbri.” But interpretations and usage vary. In any case, {le plise} means “the apple(s)”."}
+, "loi": {"en": "This is “classic” {loi} as introduced in CLL. The modern BPFK definition is: “Generic mass article. It converts a selbri, selecting its first argument, into a sumti. The resulting expression refers generically to a group or groups of individuals that fit the first argument of the selbri and which collectively satisfy the predicate for which the sumti is an argument.”"}
+, "lei": {"en": "This is “classic” {lei} as introduced in CLL. The modern BPFK definition is: “Specific mass article. It converts a selbri, selecting its first argument, into a sumti. The resulting expression refers specifically to a group of individuals that the speaker has in mind and describes as fitting the first argument of the selbri and which collectively satisfy the predicate for which the sumti is an argument.”"}
+, "me": {"en": "Modern definition: $x_1$ is/are among $x_2$."}
+, "mei": {"en": "Modern definition: $x_1$ are *n* in number."}
+, "banzu": {"en": "Sometimes used as though it were defined as: $x_1$ is sufficiently $x_2$ for $x_3$ to happen ({raunzu})."}
 , "cinse": {"en": "Often considered too broad, and used in a limited sense like: $x_1$ has sexual orientation $x_2$ (ka). See {jenri}."}
-, "dukse": {"en": "Sometimes used as though it were defined as: $x_1$ is too $x_2$ for $x_3$ to happen."}
+, "dukse": {"en": "Sometimes used as though it were defined as: $x_1$ is too $x_2$ for $x_3$ to happen ({du'enzu})."}
+, "moxna": {"en": "Sometimes used as though it were defined as: $x_1$ is insufficiently $x_2$ for $x_3$ to happen ({mo'anzu})."}
 , "jukni": {"en": "Often considered too broad. See {janka}, {lokra}, {karki}, {cilga}."}
 , "stagi": {"en": "The $x_2$ specifies which portion of $x_3$ it is: lo najgenja cu stagi *lo genja* fi la'oi ly. Daucus carota .ly. = “carrots are the edible *roots* of Daucus carota.”"}
 , "xruti": {"en": "Sometimes used as though it were defined as: $x_1$ returns to earlier state $x_2$."}
