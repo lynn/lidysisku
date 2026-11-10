@@ -344,8 +344,11 @@ function setLang(newLang) {
 
 let goInterval = undefined;
 function goDebounced() {
-  window.clearTimeout(goInterval);
-  goInterval = window.setTimeout(go, 15);
+  if (goInterval) return;
+  goInterval = requestAnimationFrame(() => {
+    goInterval = undefined;
+    go();
+  });
 }
 
 window.addEventListener("DOMContentLoaded", () => {
