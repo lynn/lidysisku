@@ -11,10 +11,10 @@
 , "u": {"en": "Some speakers instead use {.u} to mean {.i ku'i}."}
 , "ua": {"en": "Used more generally to express understanding or non-understanding."}
 , "e'i": {"en": "Under a BPFK redefinition, this word *imposes* a constraint instead."}
-, "lo": {"en": "This is “classic” {lo} as introduced in CLL. The modern BPFK definition is: “Generic article. It converts a selbri, selecting its first argument, into a sumti. The resulting expression refers generically to any or some individual or individuals that fit as the first argument of the selbri.” But interpretations and usage vary. In any case, {lo plise} means “(a/the) apple(s)”."}
-, "le": {"en": "This is “classic” {le} as introduced in CLL. The modern BPFK definition is: “Specific article. It converts a selbri, selecting its first argument, into a sumti. The resulting expression refers specifically to any or some individual or individuals that the speaker has in mind and which the speaker describes as fitting the first argument of the selbri.” But interpretations and usage vary. In any case, {le plise} means “the apple(s)”."}
-, "loi": {"en": "This is “classic” {loi} as introduced in CLL. The modern BPFK definition is: “Generic mass article. It converts a selbri, selecting its first argument, into a sumti. The resulting expression refers generically to a group or groups of individuals that fit the first argument of the selbri and which collectively satisfy the predicate for which the sumti is an argument.”"}
-, "lei": {"en": "This is “classic” {lei} as introduced in CLL. The modern BPFK definition is: “Specific mass article. It converts a selbri, selecting its first argument, into a sumti. The resulting expression refers specifically to a group of individuals that the speaker has in mind and describes as fitting the first argument of the selbri and which collectively satisfy the predicate for which the sumti is an argument.”"}
+, "lo": {"en": "This is “classic” {lo} as introduced in CLL. Modern interpretations and usage vary. In any case, {lo plise} means “(a/the) apple(s).”"}
+, "le": {"en": "This is “classic” {le} as introduced in CLL. Modern interpretations and usage vary. In any case, {le plise} means “the apple(s).”"}
+, "loi": {"en": "This is “classic” {loi} as introduced in CLL. Modern interpretations and usage vary. In any case, {loi plise} means “(a/the) apples.”"}
+, "lei": {"en": "This is “classic” {lei} as introduced in CLL. Modern interpretations and usage vary. In any case, {lei plise} means “the apples.”"}
 , "me": {"en": "Modern definition: $x_1$ is/are among $x_2$."}
 , "mei": {"en": "Modern definition: $x_1$ are *n* in number."}
 , "banzu": {"en": "Sometimes used as though it were defined as: $x_1$ is sufficiently $x_2$ for $x_3$ to happen ({raunzu})."}
